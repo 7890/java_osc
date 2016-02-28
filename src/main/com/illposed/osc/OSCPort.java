@@ -20,7 +20,7 @@ import java.net.DatagramSocket;
 public class OSCPort {
 
 	private final DatagramSocket socket;
-	private final int port;
+	private int port;
 
 	public static final int DEFAULT_SC_OSC_PORT = 57110;
 	public static final int DEFAULT_SC_LANG_OSC_PORT = 57120;
@@ -73,5 +73,10 @@ public class OSCPort {
 	 */
 	public void close() {
 		socket.close();
+	}
+
+	public void setPort(int port)
+	{
+		this.port=port;
 	}
 }

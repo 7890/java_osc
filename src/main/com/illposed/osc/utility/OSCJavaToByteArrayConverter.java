@@ -328,6 +328,21 @@ public class OSCJavaToByteArrayConverter {
 		writeTypesArray(arguments);
 		// we always need to terminate with a zero,
 		// even if (especially when) the stream is already aligned.
+/*
+00000000  2f 74 65 73 74 34 00 00  2c 69 69 69 00 00 00 01  |/test4..,iii....|
+00000010  00 00 00 02 00 00 00 03                           |........|
+00000018
+(invalid)
+
+vs.
+
+00000000  2f 74 65 73 74 34 00 00  2c 69 69 69 00 00 00 00  |/test4..,iii....|
+00000010  00 00 00 01 00 00 00 02  00 00 00 03              |............|
+0000001c
+
+"irc the type tag declaration also has to end with a null byte on a 4-byte boundary so it is padded with any extra zeroes as required."
+https://www.native-instruments.com/forum/threads/learning-osc-from-scratch.64996/
+*/
 		stream.write(0);
 		// align the stream with padded bytes
 		alignStream();

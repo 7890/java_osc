@@ -31,6 +31,9 @@ public class OSCByteArrayToJavaConverter {
 	private static final char BUNDLE_IDENTIFIER = BUNDLE_START.charAt(0);
 	private static final String NO_ARGUMENT_TYPES = "";
 
+	private String remoteHost="";
+	private int remotePort=0;
+
 	private static class Input {
 
 		private final byte[] bytes;
@@ -116,6 +119,12 @@ public class OSCByteArrayToJavaConverter {
 		return packet;
 	}
 
+	public OSCPacket convert(byte[] bytes, int bytesLength, String remoteHost, int remotePort) {
+		this.remoteHost=remoteHost;
+		this.remotePort=remotePort;
+		return convert(bytes, bytesLength);
+	}
+
 	/**
 	 * Checks whether my byte array is a bundle.
 	 * From the OSC 1.0 specifications:
@@ -171,6 +180,8 @@ public class OSCByteArrayToJavaConverter {
 	private OSCMessage convertMessage(final Input rawInput) {
 		final OSCMessage message = new OSCMessage();
 		message.setAddress(readString(rawInput));
+		message.setRemoteHost(this.remoteHost);
+		message.setRemotePort(this.remotePort);
 		final CharSequence types = readTypes(rawInput);
 		for (int ti = 0; ti < types.length(); ++ti) {
 			if ('[' == types.charAt(ti)) {
@@ -333,7 +344,7 @@ public class OSCByteArrayToJavaConverter {
 
 	/**
 	 * Reads an unsigned integer (32 bit) from the byte stream.
-	 * This code is copied from {@see http://darksleep.com/player/JavaAndUnsignedTypes.html},
+	 * This code is copied from http://darksleep.com/player/JavaAndUnsignedTypes.html,
 	 * which is licensed under the Public Domain.
 	 * @return single precision, unsigned integer (32 bit) wrapped in a 64 bit integer (long)
 	 */

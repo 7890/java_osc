@@ -28,6 +28,9 @@ abstract class AbstractOSCPacket implements OSCPacket {
 	private Charset charset;
 	private byte[] byteArray;
 
+	private String remoteHost="";
+	private int remotePort=0;
+
 	public AbstractOSCPacket() {
 		this.charset = Charset.defaultCharset();
 		this.byteArray = null;
@@ -66,10 +69,36 @@ abstract class AbstractOSCPacket implements OSCPacket {
 		if (byteArray == null) {
 			byteArray = computeByteArray();
 		}
+/*
+		try
+		{
+			java.io.FileOutputStream stream = new java.io.FileOutputStream("/tmp/msg.bin");
+			stream.write(byteArray);
+			stream.close();
+		}
+		catch(Exception e){}
+*/
 		return byteArray;
 	}
 
 	protected void contentChanged() {
 		byteArray = null;
+	}
+
+	public String getRemoteHost()
+	{
+		return remoteHost;
+	}
+	public int getRemotePort()
+	{
+		return remotePort;
+	}
+	public void setRemoteHost(String s)
+	{
+		remoteHost=s;
+	}
+	public void setRemotePort(int i)
+	{
+		remotePort=i;
 	}
 }

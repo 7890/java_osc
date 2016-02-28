@@ -94,4 +94,11 @@ public class OSCPortOut extends OSCPort {
 				new DatagramPacket(byteArray, byteArray.length, address, getPort());
 		getSocket().send(packet);
 	}
+
+	//set new target address for this port
+	public void setTarget(InetAddress address, int port)
+	{
+		this.address = address;
+		super.setPort(port);
+	}
 }
