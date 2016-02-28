@@ -336,59 +336,74 @@
 <span class="sourceLineNo">328</span>    writeTypesArray(arguments);<a name="line.328"></a>
 <span class="sourceLineNo">329</span>    // we always need to terminate with a zero,<a name="line.329"></a>
 <span class="sourceLineNo">330</span>    // even if (especially when) the stream is already aligned.<a name="line.330"></a>
-<span class="sourceLineNo">331</span>    stream.write(0);<a name="line.331"></a>
-<span class="sourceLineNo">332</span>    // align the stream with padded bytes<a name="line.332"></a>
-<span class="sourceLineNo">333</span>    alignStream();<a name="line.333"></a>
-<span class="sourceLineNo">334</span>  }<a name="line.334"></a>
-<span class="sourceLineNo">335</span><a name="line.335"></a>
-<span class="sourceLineNo">336</span>  /**<a name="line.336"></a>
-<span class="sourceLineNo">337</span>   * Write bytes to the stream, catching IOExceptions and converting them to<a name="line.337"></a>
-<span class="sourceLineNo">338</span>   * RuntimeExceptions.<a name="line.338"></a>
-<span class="sourceLineNo">339</span>   * @param bytes to be written to the stream<a name="line.339"></a>
-<span class="sourceLineNo">340</span>   */<a name="line.340"></a>
-<span class="sourceLineNo">341</span>  private void writeUnderHandler(byte[] bytes) {<a name="line.341"></a>
+<span class="sourceLineNo">331</span>/*<a name="line.331"></a>
+<span class="sourceLineNo">332</span>00000000  2f 74 65 73 74 34 00 00  2c 69 69 69 00 00 00 01  |/test4..,iii....|<a name="line.332"></a>
+<span class="sourceLineNo">333</span>00000010  00 00 00 02 00 00 00 03                           |........|<a name="line.333"></a>
+<span class="sourceLineNo">334</span>00000018<a name="line.334"></a>
+<span class="sourceLineNo">335</span>(invalid)<a name="line.335"></a>
+<span class="sourceLineNo">336</span><a name="line.336"></a>
+<span class="sourceLineNo">337</span>vs.<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>00000000  2f 74 65 73 74 34 00 00  2c 69 69 69 00 00 00 00  |/test4..,iii....|<a name="line.339"></a>
+<span class="sourceLineNo">340</span>00000010  00 00 00 01 00 00 00 02  00 00 00 03              |............|<a name="line.340"></a>
+<span class="sourceLineNo">341</span>0000001c<a name="line.341"></a>
 <span class="sourceLineNo">342</span><a name="line.342"></a>
-<span class="sourceLineNo">343</span>    try {<a name="line.343"></a>
-<span class="sourceLineNo">344</span>      stream.write(bytes);<a name="line.344"></a>
-<span class="sourceLineNo">345</span>    } catch (IOException ex) {<a name="line.345"></a>
-<span class="sourceLineNo">346</span>      throw new RuntimeException("You're screwed:"<a name="line.346"></a>
-<span class="sourceLineNo">347</span>          + " IOException writing to a ByteArrayOutputStream", ex);<a name="line.347"></a>
-<span class="sourceLineNo">348</span>    }<a name="line.348"></a>
+<span class="sourceLineNo">343</span>"irc the type tag declaration also has to end with a null byte on a 4-byte boundary so it is padded with any extra zeroes as required."<a name="line.343"></a>
+<span class="sourceLineNo">344</span>https://www.native-instruments.com/forum/threads/learning-osc-from-scratch.64996/<a name="line.344"></a>
+<span class="sourceLineNo">345</span>*/<a name="line.345"></a>
+<span class="sourceLineNo">346</span>    stream.write(0);<a name="line.346"></a>
+<span class="sourceLineNo">347</span>    // align the stream with padded bytes<a name="line.347"></a>
+<span class="sourceLineNo">348</span>    alignStream();<a name="line.348"></a>
 <span class="sourceLineNo">349</span>  }<a name="line.349"></a>
 <span class="sourceLineNo">350</span><a name="line.350"></a>
 <span class="sourceLineNo">351</span>  /**<a name="line.351"></a>
-<span class="sourceLineNo">352</span>   * Write a 32 bit integer to the byte array without allocating memory.<a name="line.352"></a>
-<span class="sourceLineNo">353</span>   * @param value a 32 bit integer.<a name="line.353"></a>
-<span class="sourceLineNo">354</span>   */<a name="line.354"></a>
-<span class="sourceLineNo">355</span>  private void writeInteger32ToByteArray(int value) {<a name="line.355"></a>
-<span class="sourceLineNo">356</span>    //byte[] intBytes = new byte[4];<a name="line.356"></a>
-<span class="sourceLineNo">357</span>    //I allocated the this buffer globally so the GC has less work<a name="line.357"></a>
-<span class="sourceLineNo">358</span><a name="line.358"></a>
-<span class="sourceLineNo">359</span>    intBytes[3] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.359"></a>
-<span class="sourceLineNo">360</span>    intBytes[2] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.360"></a>
-<span class="sourceLineNo">361</span>    intBytes[1] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.361"></a>
-<span class="sourceLineNo">362</span>    intBytes[0] = (byte)value;<a name="line.362"></a>
-<span class="sourceLineNo">363</span><a name="line.363"></a>
-<span class="sourceLineNo">364</span>    writeUnderHandler(intBytes);<a name="line.364"></a>
-<span class="sourceLineNo">365</span>  }<a name="line.365"></a>
-<span class="sourceLineNo">366</span><a name="line.366"></a>
-<span class="sourceLineNo">367</span>  /**<a name="line.367"></a>
-<span class="sourceLineNo">368</span>   * Write a 64 bit integer to the byte array without allocating memory.<a name="line.368"></a>
-<span class="sourceLineNo">369</span>   * @param value a 64 bit integer.<a name="line.369"></a>
-<span class="sourceLineNo">370</span>   */<a name="line.370"></a>
-<span class="sourceLineNo">371</span>  private void writeInteger64ToByteArray(long value) {<a name="line.371"></a>
-<span class="sourceLineNo">372</span>    longintBytes[7] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.372"></a>
-<span class="sourceLineNo">373</span>    longintBytes[6] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.373"></a>
-<span class="sourceLineNo">374</span>    longintBytes[5] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.374"></a>
-<span class="sourceLineNo">375</span>    longintBytes[4] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.375"></a>
-<span class="sourceLineNo">376</span>    longintBytes[3] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.376"></a>
-<span class="sourceLineNo">377</span>    longintBytes[2] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.377"></a>
-<span class="sourceLineNo">378</span>    longintBytes[1] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.378"></a>
-<span class="sourceLineNo">379</span>    longintBytes[0] = (byte)value;<a name="line.379"></a>
-<span class="sourceLineNo">380</span><a name="line.380"></a>
-<span class="sourceLineNo">381</span>    writeUnderHandler(longintBytes);<a name="line.381"></a>
-<span class="sourceLineNo">382</span>  }<a name="line.382"></a>
-<span class="sourceLineNo">383</span>}<a name="line.383"></a>
+<span class="sourceLineNo">352</span>   * Write bytes to the stream, catching IOExceptions and converting them to<a name="line.352"></a>
+<span class="sourceLineNo">353</span>   * RuntimeExceptions.<a name="line.353"></a>
+<span class="sourceLineNo">354</span>   * @param bytes to be written to the stream<a name="line.354"></a>
+<span class="sourceLineNo">355</span>   */<a name="line.355"></a>
+<span class="sourceLineNo">356</span>  private void writeUnderHandler(byte[] bytes) {<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>    try {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>      stream.write(bytes);<a name="line.359"></a>
+<span class="sourceLineNo">360</span>    } catch (IOException ex) {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>      throw new RuntimeException("You're screwed:"<a name="line.361"></a>
+<span class="sourceLineNo">362</span>          + " IOException writing to a ByteArrayOutputStream", ex);<a name="line.362"></a>
+<span class="sourceLineNo">363</span>    }<a name="line.363"></a>
+<span class="sourceLineNo">364</span>  }<a name="line.364"></a>
+<span class="sourceLineNo">365</span><a name="line.365"></a>
+<span class="sourceLineNo">366</span>  /**<a name="line.366"></a>
+<span class="sourceLineNo">367</span>   * Write a 32 bit integer to the byte array without allocating memory.<a name="line.367"></a>
+<span class="sourceLineNo">368</span>   * @param value a 32 bit integer.<a name="line.368"></a>
+<span class="sourceLineNo">369</span>   */<a name="line.369"></a>
+<span class="sourceLineNo">370</span>  private void writeInteger32ToByteArray(int value) {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    //byte[] intBytes = new byte[4];<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    //I allocated the this buffer globally so the GC has less work<a name="line.372"></a>
+<span class="sourceLineNo">373</span><a name="line.373"></a>
+<span class="sourceLineNo">374</span>    intBytes[3] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    intBytes[2] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.375"></a>
+<span class="sourceLineNo">376</span>    intBytes[1] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.376"></a>
+<span class="sourceLineNo">377</span>    intBytes[0] = (byte)value;<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>    writeUnderHandler(intBytes);<a name="line.379"></a>
+<span class="sourceLineNo">380</span>  }<a name="line.380"></a>
+<span class="sourceLineNo">381</span><a name="line.381"></a>
+<span class="sourceLineNo">382</span>  /**<a name="line.382"></a>
+<span class="sourceLineNo">383</span>   * Write a 64 bit integer to the byte array without allocating memory.<a name="line.383"></a>
+<span class="sourceLineNo">384</span>   * @param value a 64 bit integer.<a name="line.384"></a>
+<span class="sourceLineNo">385</span>   */<a name="line.385"></a>
+<span class="sourceLineNo">386</span>  private void writeInteger64ToByteArray(long value) {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>    longintBytes[7] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.387"></a>
+<span class="sourceLineNo">388</span>    longintBytes[6] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.388"></a>
+<span class="sourceLineNo">389</span>    longintBytes[5] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>    longintBytes[4] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>    longintBytes[3] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.391"></a>
+<span class="sourceLineNo">392</span>    longintBytes[2] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.392"></a>
+<span class="sourceLineNo">393</span>    longintBytes[1] = (byte)value; value &gt;&gt;&gt;= 8;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>    longintBytes[0] = (byte)value;<a name="line.394"></a>
+<span class="sourceLineNo">395</span><a name="line.395"></a>
+<span class="sourceLineNo">396</span>    writeUnderHandler(longintBytes);<a name="line.396"></a>
+<span class="sourceLineNo">397</span>  }<a name="line.397"></a>
+<span class="sourceLineNo">398</span>}<a name="line.398"></a>
 
 
 
