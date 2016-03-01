@@ -38,7 +38,9 @@ compile_java_osc()
 
 	echo "compiling files in $src/main to directory $build ..."
 
-	find "$src/main/com/illposed/osc/" -name *.java > "$TMPFILE"
+#	find "$src/main/com/illposed/osc/" -name *.java > "$TMPFILE"
+	find "$src/main/" -name *.java > "$TMPFILE"
+
 	$JAVAC -classpath "$build" -sourcepath "$src/main" -d "$build" @"$TMPFILE"
 }
 
@@ -52,12 +54,12 @@ create_java_osc_jar()
 	cur="`pwd`"
 
 	echo "Manifest-Version: 1.0" > "$build"/Manifest.txt
-#	echo "Main-Class: xxx" >> "$build"/Manifest.txt
+	echo "Main-Class: Main" >> "$build"/Manifest.txt
 	echo "" >> "$build"/Manifest.txt
 
 	cd "$build"
 
-	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/
+	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/ Main.class oscsend.class
 	ls -l JavaOSC_"$NOW".jar
 
 	echo "build_jar done."
@@ -85,7 +87,7 @@ rm -rf "$build"/*
 
 compile_java_osc
 create_java_osc_jar
-create_javadoc
+#create_javadoc
 
 echo ""
 echo "done."
