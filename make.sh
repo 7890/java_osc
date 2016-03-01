@@ -59,7 +59,16 @@ create_java_osc_jar()
 
 	cd "$build"
 
-	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/ *.class
+	cp "$src"/main/oscsend.java .
+	cp "$src"/main/oscdump.java .
+	cp -r "$doc" "$build"
+	cp "$DIR"/LICENSE "$build"
+
+	#include oscsend, oscdump source as examples
+	#include generated javadoc
+	#include license
+	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/ \
+		*.class oscsend.java oscdump.java doc LICENSE
 	ls -l JavaOSC_"$NOW".jar
 
 	echo "build_jar done."
