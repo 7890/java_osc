@@ -183,6 +183,7 @@ public class OSCByteArrayToJavaConverter {
 		message.setRemoteHost(this.remoteHost);
 		message.setRemotePort(this.remotePort);
 		final CharSequence types = readTypes(rawInput);
+		message.setTypetagString(""+types);
 		for (int ti = 0; ti < types.length(); ++ti) {
 			if ('[' == types.charAt(ti)) {
 				// we're looking at an array -- read it in

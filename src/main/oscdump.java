@@ -91,9 +91,8 @@ static class GenericOSCListener implements OSCListener
 			System.out.print(path);
 			if(argsSize>0)
 			{
-				///need typetag string!
-				System.out.print(" ("+argsSize+" args)");
-				//System.out.print(" xxx");
+				//System.out.print(" ("+argsSize+" args)");
+				System.out.print(" "+msg.getTypetagString());
 				for(int i=0;i<argsSize;i++)
 				{
 					System.out.print(" "+args.get(i));

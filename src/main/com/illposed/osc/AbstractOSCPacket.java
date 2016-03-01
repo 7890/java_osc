@@ -30,6 +30,7 @@ abstract class AbstractOSCPacket implements OSCPacket {
 
 	private String remoteHost="";
 	private int remotePort=0;
+	private String typetags="";
 
 	public AbstractOSCPacket() {
 		this.charset = Charset.defaultCharset();
@@ -93,6 +94,10 @@ abstract class AbstractOSCPacket implements OSCPacket {
 	{
 		return remotePort;
 	}
+	public String getTypetagString()
+	{
+		return typetags;
+	}
 	public void setRemoteHost(String s)
 	{
 		remoteHost=s;
@@ -100,5 +105,9 @@ abstract class AbstractOSCPacket implements OSCPacket {
 	public void setRemotePort(int i)
 	{
 		remotePort=i;
+	}
+	public void setTypetagString(String typetags)
+	{
+		this.typetags=typetags;
 	}
 }
