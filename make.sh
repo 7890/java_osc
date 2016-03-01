@@ -59,7 +59,7 @@ create_java_osc_jar()
 
 	cd "$build"
 
-	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/ Main.class oscsend.class
+	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/ *.class
 	ls -l JavaOSC_"$NOW".jar
 
 	echo "build_jar done."

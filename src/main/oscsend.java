@@ -80,9 +80,8 @@ class oscsend
 
 			//send the message
 			portOut.send(msg_out);
-
 			System.err.println("message sent");
-
+			portOut.close();
 			//quit
 			System.exit(0);
 		}
