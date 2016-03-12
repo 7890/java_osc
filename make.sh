@@ -64,14 +64,19 @@ create_java_osc_jar()
 	cp -r "$doc" "$build"
 	cp "$DIR"/LICENSE "$build"
 
+	mkdir -p resources/images/
+	cp "$src"/main/gfx/app_icon.png resources/images/
+
 	#include oscsend, oscdump source as examples
 	#include generated javadoc
 	#include license
 	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/ \
-		*.class oscsend.java oscdump.java doc LICENSE
+		*.class oscsend.java oscdump.java doc LICENSE resources/
 	ls -l JavaOSC_"$NOW".jar
 
 	echo "build_jar done."
+	echo "start with:"
+	echo "java -jar "$build"/JavaOSC_"$NOW".jar"
 }
 
 #========================================================================
