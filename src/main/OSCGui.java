@@ -69,8 +69,6 @@ public class OSCGui
 
 	private long last_status_set_millis=0;
 
-	private static boolean shutdown_requested=false;
-
 	//gui objects
 	private JFrame main_frame;
 
@@ -185,8 +183,6 @@ public class OSCGui
 			main_frame.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
 		}
 
-		start_status_clear_timeout_thread();
-
 		if(start_iconified)
 		{
 			main_frame.setState(JFrame.ICONIFIED);
@@ -200,12 +196,21 @@ public class OSCGui
 			init_osc_server(local_osc_port,remote_osc_host,remote_osc_port);
 			start_poll_thread();
 			set_status("OSC server started");
+
+			//send to self
+			OSCMessage msg_startup=new OSCMessage("/OSCGui/startup");
+			portOut.setTarget(InetAddress.getByName("127.0.0.1"),local_osc_port);
+			portOut.send(msg_startup);
 		}
 		catch(Exception e)
 		{
 			e("Error: "+e);
 			set_status("Error: could not start OSC server on port "+local_osc_port);
+			try{Thread.sleep(3000);}catch(Exception e1){}
+			System.exit(1);
 		}
+
+		start_status_clear_timeout_thread();
 
 		if(send_after_program_start)
 		{
@@ -648,21 +653,29 @@ public class OSCGui
 			public void run()
 			{
 				e("Terminate signal received");
-				shutdown_requested=true;
-				//prevent second shutdown if shutdown() called directly
-				if(!shutdown_requested)
+				//send to self
+				OSCMessage msg_shutdown=new OSCMessage("/OSCGui/shutdown");
+				try
+				{
+					portOut.setTarget(InetAddress.getByName("127.0.0.1"),local_osc_port);
+					portOut.send(msg_shutdown);
+					Thread.sleep(50);
+				}catch(Exception e){}
+				if(portIn!=null)
 				{
 					portIn.stopListening();
 					portIn.close();
-					portOut.close();
-					if(printwriter!=null)
-					{
-						printwriter.flush();
-						printwriter.close();
-					}
-					//quit nicely
-					System.exit(0);
 				}
+				if(portOut!=null)
+				{
+					portOut.close();
+				}
+				if(printwriter!=null)
+				{
+					printwriter.flush();
+					printwriter.close();
+				}
+				e("Bye");
 			}
 		});
 	}
