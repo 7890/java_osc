@@ -147,9 +147,34 @@ public class OSCGui
 	public OSCGui(String[] args)
 	{
 		DTime.setTimeZoneUTC();
-		if(!loadProps(propertiesFileUri))
+
+		if(args.length==1
+			&& (args[0].equals("-h") || args[0].equals("--help"))
+			|| args.length>2
+		)
 		{
-			e("Could not load properties");
+			System.out.println("Use OSCGui: java -jar <path to this jar>");
+			System.err.println("Syntax: -c (config file)");
+			System.err.println("Example: -c my.properties\n");
+			System.err.println("Default properties file: ./"+propertiesFileUri);
+			System.err.println("If no parameters provided, default values will be used.\n");
+			System.exit(0);
+		}
+
+		if(args.length==2 && (args[0].equals("-c") || args[0].equals("--config")))
+		{
+			if(!loadProps(args[1]))
+			{
+				System.err.println("Could not load properties "+args[1]);
+				System.exit(1);
+			}
+		}
+		else
+		{
+			if(!loadProps(propertiesFileUri))
+			{
+				e("Could not load default properties "+propertiesFileUri);
+			}
 		}
 
 		addShutdownHook();
