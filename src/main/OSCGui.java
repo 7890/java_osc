@@ -34,6 +34,7 @@ public class OSCGui
 	public String 	message_filter_path		="//*"; //match every message starting with '/'
 
 	public boolean 	log_to_file 			=false;
+	//directory will be created if not existing and loggin enabled
 	public String 	log_file_base_path		="./logs";
 	//prefix of log filenames
 	public String 	log_file_prefix			="osc_log_";
@@ -126,8 +127,19 @@ public class OSCGui
 	}
 
 //========================================================================
-	public String createLogFileUri()
+	public String createLogFileUri() throws Exception
 	{
+		File log_dir=new File(log_file_base_path);
+		if(!log_dir.exists())
+		{
+			System.err.println("Creating log dir: "+log_file_base_path);
+			log_dir.mkdirs();
+		}
+		if(!log_dir.exists() || !log_dir.isDirectory() || !log_dir.canWrite())
+		{
+			throw new Exception("Invalid log_file_base_path: "+log_file_base_path);
+		}
+
 		date_format=new SimpleDateFormat(date_format_string);
 		date_format.setTimeZone(TimeZone.getTimeZone(timezone_id));
 		String log_file_name=log_file_prefix+date_format.format(new Date())
