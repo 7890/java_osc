@@ -41,7 +41,23 @@ compile_java_osc()
 #	find "$src/main/com/illposed/osc/" -name *.java > "$TMPFILE"
 	find "$src/main/" -name *.java > "$TMPFILE"
 
-	$JAVAC -classpath "$build" -sourcepath "$src/main" -d "$build" @"$TMPFILE"
+	$JAVAC -classpath "$build" -d "$build" @"$TMPFILE"
+}
+
+#========================================================================
+compile_msgpack()
+{
+	echo "building msgpack library (org.msgpack.*)"
+	echo "========================================"
+
+	cp "$archive"/msgpack-java_0.8.9.tar.gz "$build"
+	cd "$build"
+	tar xf msgpack-java_0.8.9.tar.gz
+	cd msgpack-java-0.8.9
+
+	find "msgpack-core/src/main/" -name *.java > "$TMPFILE"
+
+	$JAVAC -classpath "$build" -d "$build" @"$TMPFILE"
 }
 
 #========================================================================
@@ -82,15 +98,24 @@ create_java_osc_jar()
 #========================================================================
 create_javadoc()
 {
-	echo "creating JavaOSC doc"
-	echo "===================="
+	echo "creating msgpack and JavaOSC doc"
+	echo "================================"
 
 	cd "$src/main"
 	javadoc -quiet -private -linksource -sourcetab 2 -d "$doc" \
 		-classpath . -sourcepath . \
 		com.illposed.osc \
-		com.illposed.osc.utility
+		com.illposed.osc.utility \
+
+	cd "$build"/msgpack-java-0.8.9
+	find "msgpack-core/src/main/" -name *.java > "$TMPFILE"
+	javadoc -quiet -private -sourcetab 2 -d "$doc/msgpack" \
+		-classpath . -sourcepath . \
+		@"$TMPFILE"
+
+
 	cd "$DIR"
+
 }
 
 for tool in java javac jar javadoc date; \
@@ -99,6 +124,7 @@ for tool in java javac jar javadoc date; \
 mkdir -p "$build"
 rm -rf "$build"/*
 
+compile_msgpack
 compile_java_osc
 create_java_osc_jar
 #create_javadoc
