@@ -17,9 +17,10 @@ class oscdump
 
 		//parse arg: port
 		//minimum #args: 1
-		if(args.length!=1)
+		if(args.length<1 || args.length>2)
 		{
-			System.err.println("syntax: <port>");
+			System.err.println("syntax: <port> (<filter string>)");
+			System.err.println("default filter string: '//*'");
 			System.exit(1);
 		}
 
@@ -32,8 +33,16 @@ class oscdump
 			//OSCPortIn 
 			portIn=new OSCPortIn(ds);
 
-			portIn.addListener("/*", new GenericOSCListener());
-			System.err.println("listening on UDP port "+local_port);
+			String filter="//*";
+			if(args.length>1)
+			{
+				filter=args[1];
+			}
+
+			// /!\  while /* matches every path with a SINGLE component,
+			//      //* will match any message (with more than one part, separated by '/')
+			portIn.addListener(filter, new GenericOSCListener());
+			System.err.println("listening on UDP port "+local_port+", filtering for messages matching '"+filter+"'" );
 			portIn.startListening();
 			while(1==1)
 			{
