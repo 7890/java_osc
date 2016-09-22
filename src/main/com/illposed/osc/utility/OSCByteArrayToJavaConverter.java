@@ -293,11 +293,19 @@ public class OSCByteArrayToJavaConverter {
 	}
 
 	/**
-	 * Reads a char from the byte stream.
+	 * Reads a char (enclosed in 32 bits) from the byte stream.
 	 * @return a {@link Character}
 	 */
 	private Character readChar(final Input rawInput) {
+		///return (char) rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
+		rawInput.addToStreamPosition(3);
 		return (char) rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
+		/*
+		just reading one char isn't enough, it would either read 00 and/or leave padded bytes
+		note: type 'c': an ascii character, sent as 32 bits
+		-liblo: 'a': 00 00 00 61
+		vs      'a'  61 00 00 00
+                */
 	}
 
 	private BigInteger readBigInteger(final Input rawInput, final int numBytes) {

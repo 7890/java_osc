@@ -196,8 +196,20 @@ public class OSCJavaToByteArrayConverter {
 	 * @param aChar the character to be written
 	 */
 	public void write(Character aChar) {
+		//it's probably safe to assume that stream is aligned here (previous addition has taken care)
+		stream.write(0);//((char)'\0');
+		stream.write(0);
+		stream.write(0);
+		stream.write((char)aChar);
+		/*
 		stream.write((char) aChar);
-		alignStream();
+		alignStream(); //aligning here after putting char would make it aligned on the 'left' side
+
+		note: type 'c': an ascii character, sent as 32 bits
+		where to put the char inside these 32 bits?
+		-liblo: 'a': 00 00 00 61
+		vs      'a'  61 00 00 00
+		*/
 	}
 
 	/**
