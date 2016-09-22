@@ -42,6 +42,10 @@ compile_java_osc()
 	find "$src/main/" -name *.java > "$TMPFILE"
 
 	$JAVAC -classpath "$build" -d "$build" @"$TMPFILE"
+
+	echo "compiling files in $src/test to directory $build ..."
+	ls -1 "$src/test/"*.java > "$TMPFILE"
+	$JAVAC -classpath "$build" -d "$build" @"$TMPFILE"
 }
 
 #========================================================================
