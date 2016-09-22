@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2003-2014, C. Ramakrishnan / Illposed Software.
+ * Copyright (C) 2016, T. Brand <tom@trellis.ch>
  * All rights reserved.
  *
  * This code is licensed under the BSD 3-Clause license.
@@ -8,7 +9,8 @@
 
 package com.illposed.osc;
 
-import com.illposed.osc.utility.OSCJavaToByteArrayConverter;
+import com.illposed.osc.utility.JavaToByteArrayConverter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,6 +26,7 @@ import java.util.regex.Pattern;
  * and <i>Arguments</i> (the content of the message).
  *
  * @author Chandrasekhar Ramakrishnan
+ * @author Thomas Brand
  */
 public class OSCMessage extends AbstractOSCPacket {
 
@@ -32,11 +35,11 @@ public class OSCMessage extends AbstractOSCPacket {
 	 * The invalid characters are:
 	 * ' ', '#', '*', ',', '?', '[', ']', '{', '}'
 	 */
-	private static final Pattern ILLEGAL_ADDRESS_CHAR
+	protected static final Pattern ILLEGAL_ADDRESS_CHAR
 			= Pattern.compile("[ \\#\\*\\,\\?\\[\\]\\{\\}]");
 
-	private String address;
-	private List<Object> arguments;
+	protected String address;
+	protected List<Object> arguments;
 
 	/**
 	 * Creates an empty OSC Message.
@@ -48,18 +51,18 @@ public class OSCMessage extends AbstractOSCPacket {
 	}
 
 	/**
-	 * Creates an OSCMessage with an address already initialized.
-	 * @param address  the recipient of this OSC message
+	 * Creates an Message with an address already initialized.
+	 * @param address the recipient of this OSC message
 	 */
 	public OSCMessage(String address) {
 		this(address, null);
 	}
 
 	/**
-	 * Creates an OSCMessage with an address
+	 * Creates an Message with an address
 	 * and arguments already initialized.
-	 * @param address  the recipient of this OSC message
-	 * @param arguments  the data sent to the receiver
+	 * @param address the recipient of this OSC message
+	 * @param arguments the data sent to the receiver
 	 */
 	public OSCMessage(String address, Collection<Object> arguments) {
 
@@ -92,8 +95,7 @@ public class OSCMessage extends AbstractOSCPacket {
 
 	/**
 	 * Add an argument to the list of arguments.
-	 * @param argument a Float, Double, String, Character, Integer, Long, Boolean, null
-	 *   or an array of these
+	 * @param argument a Float, Double, String, Character, Integer, Long, Boolean, null or an array of these
 	 */
 	public void addArgument(Object argument) {
 		arguments.add(argument);
@@ -109,43 +111,14 @@ public class OSCMessage extends AbstractOSCPacket {
 	}
 
 	/**
-	 * Convert the address into a byte array.
-	 * Used internally only.
-	 * @param stream where to write the address to
-	 */
-	private void computeAddressByteArray(OSCJavaToByteArrayConverter stream) {
-		stream.write(address);
-	}
-
-	/**
-	 * Convert the arguments into a byte array.
-	 * Used internally only.
-	 * @param stream where to write the arguments to
-	 */
-	private void computeArgumentsByteArray(OSCJavaToByteArrayConverter stream) {
-		stream.write(',');
-		stream.writeTypes(arguments);
-		for (final Object argument : arguments) {
-			stream.write(argument);
-		}
-	}
-
-	@Override
-	protected byte[] computeByteArray(OSCJavaToByteArrayConverter stream) {
-		computeAddressByteArray(stream);
-		computeArgumentsByteArray(stream);
-		return stream.toByteArray();
-	}
-
-	/**
 	 * Throws an exception if the given address is invalid.
 	 * We explicitly allow <code>null</code> here,
 	 * because we want to allow to set the address in a lazy fashion.
 	 * @param address to be checked for validity
 	 */
-	private static void checkAddress(String address) {
+	protected static void checkAddress(String address) {
 		// NOTE We explicitly allow <code>null</code> here,
-		//   because we want to allow to set in a lazy fashion.
+		// because we want to allow to set in a lazy fashion.
 		if ((address != null) && !isValidAddress(address)) {
 			throw new IllegalArgumentException("Not a valid OSC address: " + address);
 		}
@@ -163,4 +136,34 @@ public class OSCMessage extends AbstractOSCPacket {
 				&& !address.contains("//")
 				&& !ILLEGAL_ADDRESS_CHAR.matcher(address).find();
 	}
-}
+
+	/**
+	 * Convert the address into a byte array.
+	 * Used internally only.
+	 * @param stream where to write the address to
+	 */
+	protected void computeAddressByteArray(JavaToByteArrayConverter stream) {
+		stream.write(address);
+	}
+
+	/**
+	 * Convert the arguments into a byte array.
+	 * Used internally only.
+	 * @param stream where to write the arguments to
+	 */
+	protected void computeArgumentsByteArray(JavaToByteArrayConverter stream) {
+		stream.write(',');
+		stream.writeTypes(arguments);
+		for (final Object argument : arguments) {
+			stream.write(argument);
+		}
+	}
+
+	//implement abstract method from abstract superclass
+	protected byte[] computeByteArray(JavaToByteArrayConverter stream) {
+		computeAddressByteArray(stream);
+		computeArgumentsByteArray(stream);
+		return stream.toByteArray();
+	}
+}//end class OSCMessage
+//EOF

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2003-2014, C. Ramakrishnan / Illposed Software.
+ * Copyright (C) 2016, T. Brand <tom@trellis.ch>
  * All rights reserved.
  *
  * This code is licensed under the BSD 3-Clause license.
@@ -8,7 +9,7 @@
 
 package com.illposed.osc;
 
-import com.illposed.osc.utility.OSCJavaToByteArrayConverter;
+import com.illposed.osc.utility.JavaToByteArrayConverter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.List;
  * executed in the future.
  *
  * @author Chandrasekhar Ramakrishnan
+ * @author Thomas Brand
  */
 public class OSCBundle extends AbstractOSCPacket {
 
@@ -128,7 +130,7 @@ public class OSCBundle extends AbstractOSCPacket {
 	 * Used Internally.
 	 * @param stream where to write the time-tag to
 	 */
-	private void computeTimeTagByteArray(OSCJavaToByteArrayConverter stream) {
+	private void computeTimeTagByteArray(JavaToByteArrayConverter stream) {
 		if ((null == timestamp) || (timestamp.equals(TIMESTAMP_IMMEDIATE))) {
 			stream.write((int) 0);
 			stream.write((int) 1);
@@ -146,8 +148,8 @@ public class OSCBundle extends AbstractOSCPacket {
 		stream.write((int) fraction);
 	}
 
-	@Override
-	protected byte[] computeByteArray(OSCJavaToByteArrayConverter stream) {
+	//implement abstract method from abstract superclass
+	protected byte[] computeByteArray(JavaToByteArrayConverter stream) {
 		stream.write("#bundle");
 		computeTimeTagByteArray(stream);
 		byte[] packetBytes;
@@ -157,4 +159,5 @@ public class OSCBundle extends AbstractOSCPacket {
 		}
 		return stream.toByteArray();
 	}
-}
+}//end class OSCBundle
+//EOF

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2004-2014, C. Ramakrishnan / Illposed Software.
+ * Copyright (C) 2016, T. Brand <tom@trellis.ch>
  * All rights reserved.
  *
  * This code is licensed under the BSD 3-Clause license.
@@ -24,15 +25,9 @@ import java.util.List;
  * into Java objects.
  *
  * @author Chandrasekhar Ramakrishnan
+ * @author Thomas Brand
  */
-public class OSCByteArrayToJavaConverter {
-
-	private static final String BUNDLE_START = "#bundle";
-	private static final char BUNDLE_IDENTIFIER = BUNDLE_START.charAt(0);
-	private static final String NO_ARGUMENT_TYPES = "";
-
-	private String remoteHost="";
-	private int remotePort=0;
+public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverter {
 
 	private static class Input {
 
@@ -68,36 +63,6 @@ public class OSCByteArrayToJavaConverter {
 		}
 	}
 
-	/** Used to decode message addresses and string parameters. */
-	private Charset charset;
-
-	/**
-	 * Creates a helper object for converting from a byte array
-	 * to an {@link OSCPacket} object.
-	 */
-	public OSCByteArrayToJavaConverter() {
-
-		this.charset = Charset.defaultCharset();
-	}
-
-	/**
-	 * Returns the character set used to decode message addresses
-	 * and string parameters.
-	 * @return the character-encoding-set used by this converter
-	 */
-	public Charset getCharset() {
-		return charset;
-	}
-
-	/**
-	 * Sets the character set used to decode message addresses
-	 * and string parameters.
-	 * @param charset the desired character-encoding-set to be used by this converter
-	 */
-	public void setCharset(Charset charset) {
-		this.charset = charset;
-	}
-
 	/**
 	 * Converts a byte array into an {@link OSCPacket}
 	 * (either an {@link OSCMessage} or {@link OSCBundle}).
@@ -119,6 +84,7 @@ public class OSCByteArrayToJavaConverter {
 		return packet;
 	}
 
+	//
 	public OSCPacket convert(byte[] bytes, int bytesLength, String remoteHost, int remotePort) {
 		this.remoteHost=remoteHost;
 		this.remotePort=remotePort;
@@ -297,10 +263,11 @@ public class OSCByteArrayToJavaConverter {
 	 * @return a {@link Character}
 	 */
 	private Character readChar(final Input rawInput) {
-		///return (char) rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
 		rawInput.addToStreamPosition(3);
 		return (char) rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
 		/*
+		return (char) rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
+
 		just reading one char isn't enough, it would either read 00 and/or leave padded bytes
 		note: type 'c': an ascii character, sent as 32 bits
 		-liblo: 'a': 00 00 00 61
@@ -312,7 +279,7 @@ public class OSCByteArrayToJavaConverter {
 		final byte[] myBytes = new byte[numBytes];
 		System.arraycopy(rawInput.getBytes(), rawInput.getStreamPosition(), myBytes, 0, numBytes);
 		rawInput.addToStreamPosition(numBytes);
-		return  new BigInteger(myBytes);
+		return new BigInteger(myBytes);
 	}
 
 	/**
@@ -467,4 +434,5 @@ public class OSCByteArrayToJavaConverter {
 		final int mod = rawInput.getStreamPosition() % 4;
 		rawInput.addToStreamPosition(4 - mod);
 	}
-}
+}//end class OSCByteArrayToJavaConverter
+//EOF

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2004-2014, C. Ramakrishnan / Illposed Software.
+ * Copyright (C) 2016, T. Brand <tom@trellis.ch>
  * All rights reserved.
  *
  * This code is licensed under the BSD 3-Clause license.
@@ -8,7 +9,9 @@
 
 package com.illposed.osc;
 
+import com.illposed.osc.utility.ByteArrayToJavaConverter;
 import com.illposed.osc.utility.OSCByteArrayToJavaConverter;
+import com.illposed.osc.utility.OSCPackByteArrayToJavaConverter;
 import com.illposed.osc.utility.OSCPacketDispatcher;
 import com.illposed.osc.utility.OSCPatternAddressSelector;
 import java.io.IOException;
@@ -39,6 +42,7 @@ import java.net.*;
  * with the address "/message/receiving".
  *
  * @author Chandrasekhar Ramakrishnan
+ * @author Thomas Brand
  */
 public class OSCPortIn extends OSCPort implements Runnable {
 
@@ -51,6 +55,7 @@ public class OSCPortIn extends OSCPort implements Runnable {
 	/** state for listening */
 	private boolean listening;
 	private final OSCByteArrayToJavaConverter converter;
+	private final OSCPackByteArrayToJavaConverter pack_converter;
 	private final OSCPacketDispatcher dispatcher;
 
 	/**
@@ -61,6 +66,7 @@ public class OSCPortIn extends OSCPort implements Runnable {
 		super(socket, socket.getLocalPort());
 
 		this.converter = new OSCByteArrayToJavaConverter();
+		this.pack_converter = new OSCPackByteArrayToJavaConverter();
 		this.dispatcher = new OSCPacketDispatcher();
 	}
 
@@ -88,6 +94,7 @@ public class OSCPortIn extends OSCPort implements Runnable {
 		this(port);
 
 		this.converter.setCharset(charset);
+		this.pack_converter.setCharset(charset);
 	}
 
 	/**
@@ -113,8 +120,21 @@ public class OSCPortIn extends OSCPort implements Runnable {
 						continue;
 					}
 				}
-				final OSCPacket oscPacket = converter.convert(buffer,
+				//decide which bytearray to java converter to use
+				ByteArrayToJavaConverter conv=null;
+				if(buffer[0]=='!') //OSCPack
+				{
+					conv=pack_converter;
+				}
+				else //it will be checked later on if message starts with '/'
+				{
+					conv=converter;
+				}
+
+				//create common datastructure, to be dispatched to listeners
+				final OSCPacket oscPacket = conv.convert(buffer,
 						packet.getLength(),packet.getAddress().getHostAddress(),packet.getPort());
+
 				dispatcher.dispatchPacket(oscPacket);
 			} catch (IOException ex) {
 				ex.printStackTrace(); // XXX This may not be a good idea, as this could easily lead to a never ending series of exceptions thrown (due to the non-exited while loop), and because the user of the lib may want to handle this case himself
@@ -170,4 +190,5 @@ public class OSCPortIn extends OSCPort implements Runnable {
 	public void addListener(AddressSelector addressSelector, OSCListener listener) {
 		dispatcher.addListener(addressSelector, listener);
 	}
-}
+}//end class OSCPortIn
+//EOF

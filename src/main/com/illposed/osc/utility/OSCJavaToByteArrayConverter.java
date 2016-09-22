@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2003-2014, C. Ramakrishnan / Illposed Software.
+ * Copyright (C) 2016, T. Brand <tom@trellis.ch>
  * All rights reserved.
  *
  * This code is licensed under the BSD 3-Clause license.
@@ -30,48 +31,18 @@ import java.util.Date;
  * @author Chandrasekhar Ramakrishnan
  * @author Martin Kaltenbrunner
  * @author Alex Potsides
+ * @author Thomas Brand
  */
-public class OSCJavaToByteArrayConverter {
+public class OSCJavaToByteArrayConverter extends AbstractJavaToByteArrayConverter {
 
-	/**
-	 * baseline NTP time if bit-0=0 is 7-Feb-2036 @ 06:28:16 UTC
-	 */
-	protected static final long MSB_0_BASE_TIME = 2085978496000L;
-	/**
-	 * baseline NTP time if bit-0=1 is 1-Jan-1900 @ 01:00:00 UTC
-	 */
-	protected static final long MSB_1_BASE_TIME = -2208988800000L;
-
-	private final ByteArrayOutputStream stream;
-	/** Used to encode message addresses and string parameters. */
-	private Charset charset;
 	private final byte[] intBytes;
 	private final byte[] longintBytes;
 
 	public OSCJavaToByteArrayConverter() {
+		super();
 
-		this.stream = new ByteArrayOutputStream();
-		this.charset = Charset.defaultCharset();
 		this.intBytes = new byte[4];
 		this.longintBytes = new byte[8];
-	}
-
-	/**
-	 * Returns the character set used to encode message addresses
-	 * and string parameters.
-	 * @return the character-encoding-set used by this converter
-	 */
-	public Charset getCharset() {
-		return charset;
-	}
-
-	/**
-	 * Sets the character set used to encode message addresses
-	 * and string parameters.
-	 * @param charset the desired character-encoding-set to be used by this converter
-	 */
-	public void setCharset(Charset charset) {
-		this.charset = charset;
 	}
 
 	/**
@@ -95,7 +66,7 @@ public class OSCJavaToByteArrayConverter {
 
 	/**
 	 * Write bytes into the byte stream.
-	 * @param bytes  bytes to be written
+	 * @param bytes bytes to be written
 	 */
 	public void write(byte[] bytes) {
 		writeInteger32ToByteArray(bytes.length);
@@ -149,38 +120,6 @@ public class OSCJavaToByteArrayConverter {
 	}
 
 	/**
-	 * Converts a Java time-stamp to a 64-bit NTP time representation.
-	 * This code was copied in from the "Apache Jakarta Commons - Net" library,
-	 * which is licensed under the
-	 * <a href="http://www.apache.org/licenses/LICENSE-2.0.html">ASF 2.0 license</a>.
-	 * The original source file can be found
-	 * <a href="http://svn.apache.org/viewvc/commons/proper/net/trunk/src/main/java/org/apache/commons/net/ntp/TimeStamp.java?view=co">here</a>.
-	 * @param javaTime Java time-stamp, as returned by {@link Date#getTime()}
-	 * @return NTP time-stamp representation of the Java time value.
-	 */
-	protected static long javaToNtpTimeStamp(long javaTime) {
-		final boolean useBase1 = javaTime < MSB_0_BASE_TIME; // time < Feb-2036
-		final long baseTime;
-		if (useBase1) {
-			baseTime = javaTime - MSB_1_BASE_TIME; // dates <= Feb-2036
-		} else {
-			// if base0 needed for dates >= Feb-2036
-			baseTime = javaTime - MSB_0_BASE_TIME;
-		}
-
-		long seconds = baseTime / 1000;
-		final long fraction = ((baseTime % 1000) * 0x100000000L) / 1000;
-
-		if (useBase1) {
-			seconds |= 0x80000000L; // set high-order bit if msb1baseTime 1900 used
-		}
-
-		final long ntpTime = seconds << 32 | fraction;
-
-		return ntpTime;
-	}
-
-	/**
 	 * Write a string into the byte stream.
 	 * @param aString the string to be written
 	 */
@@ -221,50 +160,6 @@ public class OSCJavaToByteArrayConverter {
 		stream.write(aChar);
 	}
 
-	/**
-	 * Checks whether the given object is represented by a type that comes without data.
-	 * @param anObject the object to inspect
-	 * @return whether the object to check consists of only its type information
-	 */
-	private boolean isNoDataObject(Object anObject) {
-		return ((anObject instanceof OSCImpulse)
-				|| (anObject instanceof Boolean)
-				|| (anObject == null));
-	}
-
-	/**
-	 * Write an object into the byte stream.
-	 * @param anObject (usually) one of Float, Double, String, Character, Integer, Long,
-	 *   or array of these.
-	 */
-	public void write(Object anObject) {
-		// Can't do switch on class
-		if (anObject instanceof Collection) {
-			final Collection<Object> theArray = (Collection<Object>) anObject;
-			for (final Object entry : theArray) {
-				write(entry);
-			}
-		} else if (anObject instanceof Float) {
-			write((Float) anObject);
-		} else if (anObject instanceof Double) {
-			write((Double) anObject);
-		} else if (anObject instanceof String) {
-			write((String) anObject);
-		} else if (anObject instanceof byte[]) {
-			write((byte[]) anObject);
-		} else if (anObject instanceof Character) {
-			write((Character) anObject);
-		} else if (anObject instanceof Integer) {
-			write((Integer) anObject);
-		} else if (anObject instanceof Long) {
-			write((Long) anObject);
-		} else if (anObject instanceof Date) {
-			write((Date) anObject);
-		} else if (!isNoDataObject(anObject)) {
-			throw new UnsupportedOperationException("Do not know how to write an object of class: "
-					+ anObject.getClass());
-		}
-	}
 
 	/**
 	 * Write the OSC specification type tag for the type a certain Java type
@@ -333,7 +228,7 @@ public class OSCJavaToByteArrayConverter {
 
 	/**
 	 * Write types for the arguments.
-	 * @param arguments  the arguments to an OSCMessage
+	 * @param arguments the arguments to an OSCMessage
 	 */
 	public void writeTypes(Collection<Object> arguments) {
 
@@ -407,4 +302,5 @@ https://www.native-instruments.com/forum/threads/learning-osc-from-scratch.64996
 
 		writeUnderHandler(longintBytes);
 	}
-}
+}//end class OSCJavaToByteArrayConverter
+//EOF
