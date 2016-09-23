@@ -21,7 +21,22 @@ public class Debug {
 			{
 				if(i!=0)
 				{
-					System.err.println();
+					System.err.print(" |");
+					for(int k=i-bytesPerLine;k<i;k++)
+					{
+						if(bytes[k]<32) //if non-printable (first is space)
+						{
+							System.err.print(".");
+						}
+						else
+						{
+							try
+							{
+								System.err.printf("%c",(byte)bytes[k]);
+							}catch(Exception e){System.err.print(".");}
+						}
+					}
+					System.err.printf("|\n");
 				}
 				System.err.printf("%08x  ",i);
 			}
