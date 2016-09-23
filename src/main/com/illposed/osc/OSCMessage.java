@@ -66,6 +66,7 @@ public class OSCMessage extends AbstractOSCPacket {
 	 */
 	public OSCMessage(String address, Collection<Object> arguments) {
 
+		super();
 		checkAddress(address);
 		this.address = address;
 		if (arguments == null) {
