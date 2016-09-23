@@ -43,7 +43,30 @@ public class Debug {
 			else if (i % (bytesPerLine/2) == 0 && i!=0) {System.err.print(" ");}
 			System.err.printf("%02x ", bytes[i]);// & 0xff);
 		}
-		System.err.println();
+
+		//handle remainder on last line
+		int byte_position_on_last_line=bytes.length % bytesPerLine;
+		for( int k=byte_position_on_last_line; k < bytesPerLine; k++ )
+		{
+			if (k % (bytesPerLine/2) == 0 && k!=0) {System.err.print(" ");}
+			System.err.printf("   ");
+		}
+		System.err.print(" |");
+		for(int j=  bytes.length - byte_position_on_last_line; j < bytes.length; j++)
+		{
+		if(bytes[j]<32) //if non-printable (first is space)
+			{
+				System.err.print(".");
+			}
+			else
+			{
+				try
+				{
+					System.err.printf("%c",(byte)bytes[j]);
+				}catch(Exception e){System.err.print(".");}
+			}
+		}
+		System.err.printf("|\n\n");
 	}
 }//end class Debug
 //EOF
