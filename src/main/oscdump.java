@@ -1,5 +1,6 @@
 import java.net.*;
 import com.illposed.osc.*;
+import com.illposed.osc.utility.Debug;
 import java.util.*;
 
 //tb/160301
@@ -10,6 +11,8 @@ class oscdump
 {
 	static OSCPortIn portIn=null;
 	static boolean shutdown_requested=false;
+
+	static boolean debug=true;
 
 	public static void main(String[] args)
 	{
@@ -108,6 +111,11 @@ static class GenericOSCListener implements OSCListener
 				}
 			}
 			System.out.println("");
+
+			if(debug)
+			{
+				Debug.hexdump(msg.getByteArray());
+			}
 
 			//reply to requester
 			//portOut.setTarget( InetAddress.getByName(msg.getRemoteHost()), msg.getRemotePort() );
