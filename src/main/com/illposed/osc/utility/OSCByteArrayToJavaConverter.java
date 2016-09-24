@@ -117,12 +117,18 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 		rawInput.addToStreamPosition(BUNDLE_START.length() + 1);
 		final Date timestamp = readTimeTag(rawInput);
 		final OSCBundle bundle = new OSCBundle(timestamp);
-		final OSCByteArrayToJavaConverter myConverter
+
+		final OSCByteArrayToJavaConverter conv_regular
 				= new OSCByteArrayToJavaConverter();
-		myConverter.setCharset(charset);
+		conv_regular.setCharset(charset);
+
+		final OSCPackByteArrayToJavaConverter conv_packed
+				= new OSCPackByteArrayToJavaConverter();
+		conv_packed.setCharset(charset);
+
 		while (rawInput.getStreamPosition() < rawInput.getBytesLength()) {
 			// recursively read through the stream and convert packets you find
-			final int packetLength = readInteger(rawInput);
+			final int packetLength = readInteger(rawInput); //byte count of (that) one message item inside blob
 			if (packetLength == 0) {
 				throw new IllegalArgumentException("Packet length may not be 0");
 			} else if ((packetLength % 4) != 0) {
@@ -132,12 +138,22 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 			final byte[] packetBytes = new byte[packetLength];
 			System.arraycopy(rawInput.getBytes(), rawInput.getStreamPosition(), packetBytes, 0, packetLength);
 			rawInput.addToStreamPosition(packetLength);
-			final OSCPacket packet = myConverter.convert(packetBytes, packetLength);
+
+			//decide which converter to use. messages inside blobs can be packed.
+			ByteArrayToJavaConverter conv;
+			if(packetBytes.length>0 && packetBytes[0]=='!')
+			{
+				conv=conv_packed;
+			}
+			else
+			{
+				conv=conv_regular;
+			}
+			final OSCPacket packet = conv.convert(packetBytes, packetLength);
 			bundle.addPacket(packet);
 		}
 		return bundle;
 	}
-
 	/**
 	 * Converts the byte array to a simple message.
 	 * Assumes that the byte array is a message.
