@@ -361,55 +361,8 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 	 * @return a {@link Date}
 	 */
 	private Date readTimeTag(final Input rawInput) {
-		final byte[] secondBytes = new byte[8];
-		final byte[] fractionBytes = new byte[8];
-		for (int bi = 0; bi < 4; bi++) {
-			// clear the higher order 4 bytes
-			secondBytes[bi] = 0;
-			fractionBytes[bi] = 0;
-		}
-		// while reading in the seconds & fraction, check if
-		// this timetag has immediate semantics
-		boolean isImmediate = true;
-		for (int bi = 4; bi < 8; bi++) {
-			secondBytes[bi] = rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
-			if (secondBytes[bi] > 0) {
-				isImmediate = false;
-			}
-		}
-		for (int bi = 4; bi < 8; bi++) {
-			fractionBytes[bi] = rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
-			if (bi < 7) {
-				if (fractionBytes[bi] > 0) {
-					isImmediate = false;
-				}
-			} else {
-				if (fractionBytes[bi] > 1) {
-					isImmediate = false;
-				}
-			}
-		}
-
-		if (isImmediate) {
-			return OSCBundle.TIMESTAMP_IMMEDIATE;
-		}
-
-		final long secsSince1900 = new BigInteger(secondBytes).longValue();
-		long secsSince1970 = secsSince1900 - OSCBundle.SECONDS_FROM_1900_TO_1970;
-
-		// no point maintaining times in the distant past
-		if (secsSince1970 < 0) {
-			secsSince1970 = 0;
-		}
-		long fraction = new BigInteger(fractionBytes).longValue();
-
-		// this line was cribbed from jakarta commons-net's NTP TimeStamp code
-		fraction = (fraction * 1000) / 0x100000000L;
-
-		// I do not know where, but I'm losing 1ms somewhere...
-		fraction = (fraction > 0) ? fraction + 1 : 0;
-		final long millisecs = (secsSince1970 * 1000) + fraction;
-		return new Date(millisecs);
+		long time=readLong(rawInput);
+		return super.readTimeTag(time);
 	}
 
 	/**
