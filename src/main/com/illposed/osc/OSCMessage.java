@@ -10,7 +10,6 @@
 package com.illposed.osc;
 
 import com.illposed.osc.utility.JavaToByteArrayConverter;
-import com.illposed.osc.utility.Tagger;
 
 import java.util.ArrayList;
 import java.util.Collection;
