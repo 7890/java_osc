@@ -12,10 +12,21 @@ public class Debug {
 	//helper method to dump binary contents of OSCMessage and OSCPackMessage payloads to stdout
 	public static void hexdump(byte[] bytes)
 	{
+		hexdump(bytes,0);
+	}
+
+	public static void hexdump(byte[] bytes, int count)
+	{
 		int bytesPerLine = 16;
 		int i;
 
-		for (i = 0; i<bytes.length; i++)
+		int length=bytes.length;
+		if(count>0 && count<=length)
+		{
+			length=count;
+		}
+
+		for (i = 0; i<length; i++)
 		{
 			if (i % bytesPerLine == 0)
 			{
@@ -35,11 +46,11 @@ public class Debug {
 		}
 
 		//handle remainder on last line
-		int byte_position_on_last_line=bytes.length % bytesPerLine;
+		int byte_position_on_last_line=length % bytesPerLine;
 		if(byte_position_on_last_line==0)
 		{
 			System.err.print(" |");
-			for(int j=  bytes.length - bytesPerLine; j < bytes.length; j++)
+			for(int j=  length - bytesPerLine; j < length; j++)
 			{
 				dumpbyte(bytes[j]);
 			}
@@ -55,7 +66,7 @@ public class Debug {
 			}
 
 			System.err.print(" |");
-			for(int j=  bytes.length - byte_position_on_last_line; j < bytes.length; j++)
+			for(int j=  length - byte_position_on_last_line; j < length; j++)
 			{
 				dumpbyte(bytes[j]);
 			}
