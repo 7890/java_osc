@@ -10,7 +10,6 @@
 package com.illposed.osc.utility;
 
 import com.illposed.osc.OSCImpulse;
-import com.illposed.osc.utility.Tagger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -118,7 +117,7 @@ public class OSCJavaToByteArrayConverter extends AbstractJavaToByteArrayConverte
 	 * @param timestamp the timestamp to be written
 	 */
 	public void write(Date timestamp) {
-		writeInteger64ToByteArray(javaToNtpTimeStamp(timestamp.getTime()));
+		writeInteger64ToByteArray(NTPTime.javaToNtpTimeStamp(timestamp.getTime()));
 	}
 
 	/**

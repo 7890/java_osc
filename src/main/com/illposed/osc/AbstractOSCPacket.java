@@ -102,10 +102,13 @@ public abstract class AbstractOSCPacket implements OSCPacket {
 	 */
 	protected byte[] computeByteArray() {
 		//default initialize with OSCJavaToByteArrayConverter (this method can be overriden if needed)
-		final JavaToByteArrayConverter stream = new OSCJavaToByteArrayConverter();
+		final JavaToByteArrayConverter stream = getConverter();
 		stream.setCharset(charset);
 		return computeByteArray(stream);
 	}
+
+	///
+	public abstract JavaToByteArrayConverter getConverter();
 
 	/**
 	 * Produces a byte array representation of this packet.

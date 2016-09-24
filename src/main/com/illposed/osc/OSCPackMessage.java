@@ -23,29 +23,15 @@ import java.util.Collection;
  * @author Thomas Brand
  */
 public class OSCPackMessage extends OSCMessage {
-	/**
-	 * Creates an empty OSCPack message.
-	 * In order to send this OSCPack message,
-	 * you need to set the address and optionally some arguments.
-	 */
+
 	public OSCPackMessage() {
 		super();
 	}
 
-	/**
-	 * Creates an OSCPack message with an address already initialized.
-	 * @param address the recipient of this OSCPack message
-	 */
 	public OSCPackMessage(String address) {
 		super(address);
 	}
 
-	/**
-	 * Creates an OSCPack message with an address
-	 * and arguments already initialized.
-	 * @param address the recipient of this OSC message
-	 * @param arguments the data sent to the receiver
-	 */
 	public OSCPackMessage(String address, Collection<Object> arguments) {
 
 		super(address,arguments);
@@ -60,16 +46,12 @@ public class OSCPackMessage extends OSCMessage {
 		}
 	}
 
-	/**
-	 * Generate a representation of this packet conforming to the
-	 * the OSCPack byte stream specification (currently non-existing ...). Used Internally.
-	 */
+	//return concrete converter
 	@Override
-	protected byte[] computeByteArray() {
-		//creating concrete converter (implementing interface JavaToByteArrayConverter)
-		final OSCJavaToOSCPackByteArrayConverter stream = new OSCJavaToOSCPackByteArrayConverter();
-		stream.setCharset(charset);
-		return computeByteArray(stream);
-	}
+        public JavaToByteArrayConverter getConverter()
+        {
+                final JavaToByteArrayConverter stream=new OSCJavaToOSCPackByteArrayConverter();
+                return stream;
+        }
 }//end class OSCPackMessage
 //EOF

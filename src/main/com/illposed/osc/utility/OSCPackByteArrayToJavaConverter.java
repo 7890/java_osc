@@ -50,10 +50,11 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 		//skip "!"
 		unpacker = MessagePack.newDefaultUnpacker(bytes, 1, bytesLength-1);
 
-		//there are no packed bundles. however one can put packed messages inside bundles.
-
-		packet = convertMessage(unpacker);
-
+		if (isBundle(bytes)) {
+			packet = convertBundle(unpacker);
+		} else {
+			packet = convertMessage(unpacker);
+		}
 		return packet;
 	}
 
@@ -61,6 +62,71 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 		this.remoteHost=remoteHost;
 		this.remotePort=remotePort;
 		return convert(bytes, bytesLength);
+	}
+
+	private boolean isBundle(final byte[] bytes) {
+		// The shortest valid packet may be no shorter then 4 bytes,
+		// thus we may assume to always have a byte at index 2.
+		//!.#bundle
+		return bytes[2] == BUNDLE_IDENTIFIER;
+	}
+
+	///
+	private OSCBundle convertBundle(final MessageUnpacker up) {
+
+		long t;
+		final Date timestamp;
+		final OSCBundle bundle;
+		final OSCByteArrayToJavaConverter conv_regular;
+		final OSCPackByteArrayToJavaConverter conv_packed;
+
+		try
+		{
+			// skip the "#bundle " stuff
+			up.unpackString();
+			t=up.unpackLong(); //ntp timestamp
+			timestamp = NTPTime.readTimeTag(t);
+
+			bundle = new OSCBundle(timestamp);
+
+			///
+			conv_regular = new OSCByteArrayToJavaConverter();
+			conv_regular.setCharset(charset);
+
+			conv_packed = new OSCPackByteArrayToJavaConverter();
+			conv_packed.setCharset(charset);
+		}
+		catch(Exception e){throw new IllegalArgumentException("could not parse OSCPack bundle");}
+
+		while (1==1)
+		{
+			// recursively read through the stream and convert packets you find
+			final int packetLength;
+			try{
+				packetLength = up.unpackBinaryHeader(); //byte count of (that) one message item inside blob
+
+				if (packetLength == 0) {
+					throw new IllegalArgumentException("Packet length may not be 0");
+				}
+
+				final byte[] packetBytes = up.readPayload(packetLength);
+
+				//decide which converter to use. messages inside blobs can be packed.
+				ByteArrayToJavaConverter conv;
+				if(packetBytes.length>0 && packetBytes[0]=='!')
+				{
+					conv=conv_packed;
+				}
+				else
+				{
+					conv=conv_regular;
+				}
+
+				final OSCPacket packet = conv.convert(packetBytes, packetLength);
+				bundle.addPacket(packet);
+			}catch(Exception e){/*e.printStackTrace();*/break;}
+		}
+		return bundle;
 	}
 
 	/**
@@ -109,7 +175,6 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 				}
 			}
 			return message;
-
 		}
 		catch (Exception e)
 		{e.printStackTrace();} ///ev. throw runtime exception
@@ -155,7 +220,7 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 				case 'I' :
 					return OSCImpulse.INSTANCE;
 				case 't' :
-					return readTimeTag(up.unpackLong());
+					return NTPTime.readTimeTag(up.unpackLong());
 				default:
 					// XXX Maybe we should let the user choose what to do in this
 					//   case (we encountered an unknown argument type in an

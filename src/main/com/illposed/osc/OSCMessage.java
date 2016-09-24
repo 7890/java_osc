@@ -10,6 +10,7 @@
 package com.illposed.osc;
 
 import com.illposed.osc.utility.JavaToByteArrayConverter;
+import com.illposed.osc.utility.OSCJavaToByteArrayConverter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -176,6 +177,14 @@ public class OSCMessage extends AbstractOSCPacket {
 		computeAddressByteArray(stream);
 		computeArgumentsByteArray(stream);
 		return stream.toByteArray();
+	}
+
+	//implement abstract method from abstract superclass
+	//to be overridden by subclasses of OSCMessage
+	public JavaToByteArrayConverter getConverter()
+	{
+		final JavaToByteArrayConverter stream=new OSCJavaToByteArrayConverter();
+		return stream;
 	}
 }//end class OSCMessage
 //EOF

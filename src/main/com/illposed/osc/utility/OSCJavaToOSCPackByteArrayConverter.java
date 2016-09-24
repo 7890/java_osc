@@ -100,7 +100,7 @@ public class OSCJavaToOSCPackByteArrayConverter extends AbstractJavaToByteArrayC
 
 	public void write(Date timestamp) {
 		try {
-			packer.packLong(javaToNtpTimeStamp(timestamp.getTime()));
+			packer.packLong(NTPTime.javaToNtpTimeStamp(timestamp.getTime()));
 		} catch (IOException e) {throwEx("",e);}
 	}
 

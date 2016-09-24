@@ -10,6 +10,9 @@
 package com.illposed.osc;
 
 import com.illposed.osc.utility.JavaToByteArrayConverter;
+import com.illposed.osc.utility.OSCJavaToByteArrayConverter;
+import com.illposed.osc.utility.NTPTime;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,8 +48,8 @@ public class OSCBundle extends AbstractOSCPacket {
 	 */
 	public static final Date TIMESTAMP_IMMEDIATE = new Date(0);
 
-	private Date timestamp;
-	private List<OSCPacket> packets;
+	protected Date timestamp;
+	protected List<OSCPacket> packets;
 
 	/**
 	 * Create a new empty OSCBundle with a timestamp of immediately.
@@ -130,22 +133,13 @@ public class OSCBundle extends AbstractOSCPacket {
 	 * Used Internally.
 	 * @param stream where to write the time-tag to
 	 */
-	private void computeTimeTagByteArray(JavaToByteArrayConverter stream) {
+	protected void computeTimeTagByteArray(JavaToByteArrayConverter stream) {
 		if ((null == timestamp) || (timestamp.equals(TIMESTAMP_IMMEDIATE))) {
-			stream.write((int) 0);
-			stream.write((int) 1);
-			return;
+			stream.write(NTPTime.javaToNtpTimeStamp(0));
 		}
-
-		final long millisecs = timestamp.getTime();
-		final long secsSince1970 = (long) (millisecs / 1000);
-		final long secs = secsSince1970 + SECONDS_FROM_1900_TO_1970;
-
-		// this line was cribbed from jakarta commons-net's NTP TimeStamp code
-		final long fraction = ((millisecs % 1000) * 0x100000000L) / 1000;
-
-		stream.write((int) secs);
-		stream.write((int) fraction);
+		else {
+			stream.write(NTPTime.javaToNtpTimeStamp(timestamp.getTime()));
+		}
 	}
 
 	//implement abstract method from abstract superclass
@@ -158,6 +152,14 @@ public class OSCBundle extends AbstractOSCPacket {
 			stream.write(packetBytes);
 		}
 		return stream.toByteArray();
+	}
+
+	//implement abstract method from abstract superclass
+	//to be overridden by subclasses of OSCBundle
+	public JavaToByteArrayConverter getConverter()
+	{
+		final JavaToByteArrayConverter stream=new OSCJavaToByteArrayConverter();
+		return stream;
 	}
 }//end class OSCBundle
 //EOF

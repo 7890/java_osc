@@ -73,38 +73,6 @@ public abstract class AbstractJavaToByteArrayConverter implements JavaToByteArra
 	}
 
 	/**
-	 * Converts a Java time-stamp to a 64-bit NTP time representation.
-	 * This code was copied in from the "Apache Jakarta Commons - Net" library,
-	 * which is licensed under the
-	 * <a href="http://www.apache.org/licenses/LICENSE-2.0.html">ASF 2.0 license</a>.
-	 * The original source file can be found
-	 * <a href="http://svn.apache.org/viewvc/commons/proper/net/trunk/src/main/java/org/apache/commons/net/ntp/TimeStamp.java?view=co">here</a>.
-	 * @param javaTime Java time-stamp, as returned by {@link Date#getTime()}
-	 * @return NTP time-stamp representation of the Java time value.
-	 */
-	protected static long javaToNtpTimeStamp(long javaTime) {
-		final boolean useBase1 = javaTime < MSB_0_BASE_TIME; // time < Feb-2036
-		final long baseTime;
-		if (useBase1) {
-			baseTime = javaTime - MSB_1_BASE_TIME; // dates <= Feb-2036
-		} else {
-			// if base0 needed for dates >= Feb-2036
-			baseTime = javaTime - MSB_0_BASE_TIME;
-		}
-
-		long seconds = baseTime / 1000;
-		final long fraction = ((baseTime % 1000) * 0x100000000L) / 1000;
-
-		if (useBase1) {
-			seconds |= 0x80000000L; // set high-order bit if msb1baseTime 1900 used
-		}
-
-		final long ntpTime = seconds << 32 | fraction;
-
-		return ntpTime;
-	}
-
-	/**
 	 * Checks whether the given object is represented by a type that comes without data.
 	 * @param anObject the object to inspect
 	 * @return whether the object to check consists of only its type information

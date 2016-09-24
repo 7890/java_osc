@@ -8,6 +8,8 @@
 
 package com.illposed.osc;
 
+import com.illposed.osc.utility.JavaToByteArrayConverter;
+
 import java.nio.charset.Charset;
 
 /**
@@ -41,4 +43,8 @@ public interface OSCPacket {
 	 * @return byte[]
 	 */
 	byte[] getByteArray();
+
+
+	//
+	JavaToByteArrayConverter getConverter();
 }

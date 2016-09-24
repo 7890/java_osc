@@ -362,7 +362,7 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 	 */
 	private Date readTimeTag(final Input rawInput) {
 		long time=readLong(rawInput);
-		return super.readTimeTag(time);
+		return NTPTime.readTimeTag(time);
 	}
 
 	/**
