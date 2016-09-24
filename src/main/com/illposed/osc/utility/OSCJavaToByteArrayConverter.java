@@ -10,6 +10,8 @@
 package com.illposed.osc.utility;
 
 import com.illposed.osc.OSCImpulse;
+import com.illposed.osc.utility.Tagger;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -160,96 +162,23 @@ public class OSCJavaToByteArrayConverter extends AbstractJavaToByteArrayConverte
 		stream.write(aChar);
 	}
 
-
-	/**
-	 * Write the OSC specification type tag for the type a certain Java type
-	 * converts to.
-	 * @param typeClass Class of a Java object in the arguments
-	 */
-	public void writeType(Class typeClass) {
-
-		// A big ol' else-if chain -- what's polymorphism mean, again?
-		// I really wish I could extend the base classes!
-		if (Integer.class.equals(typeClass)) {
-			stream.write('i');
-		} else if (Long.class.equals(typeClass)) {
-			stream.write('h');
-		} else if (Date.class.equals(typeClass)) {
-			stream.write('t');
-		} else if (Float.class.equals(typeClass)) {
-			stream.write('f');
-		} else if (Double.class.equals(typeClass)) {
-			stream.write('d');
-		} else if (String.class.equals(typeClass)) {
-			stream.write('s');
-		} else if (byte[].class.equals(typeClass)) {
-			stream.write('b');
-		} else if (Character.class.equals(typeClass)) {
-			stream.write('c');
-		} else if (OSCImpulse.class.equals(typeClass)) {
-			stream.write('I');
-		} else {
-			throw new UnsupportedOperationException("Do not know the OSC type for the java class: "
-					+ typeClass);
-		}
-	}
-
-	/**
-	 * Write the types for an array element in the arguments.
-	 * @param arguments array of base Objects
-	 */
-	private void writeTypesArray(Collection<Object> arguments) {
-
-		for (final Object argument : arguments) {
-			if (null == argument) {
-				stream.write('N');
-			} else if (argument instanceof Collection) {
-				// If the array at i is a type of array, write a '['.
-				// This is used for nested arguments.
-				stream.write('[');
-				// fill the [] with the SuperCollider types corresponding to
-				// the object (e.g., Object of type String needs -s).
-				// XXX Why not call this function, recursively? The only reason would be, to not allow nested arrays, but the specification does not say anythign about them not being allowed.
-				writeTypesArray((Collection<Object>) argument);
-				// close the array
-				stream.write(']');
-			} else if (Boolean.TRUE.equals(argument)) {
-				stream.write('T');
-			} else if (Boolean.FALSE.equals(argument)) {
-				stream.write('F');
-			} else {
-				// go through the array and write the superCollider types as shown
-				// in the above method.
-				// The classes derived here are used as the arg to the above method.
-				writeType(argument.getClass());
-			}
-		}
-	}
-
 	/**
 	 * Write types for the arguments.
 	 * @param arguments the arguments to an OSCMessage
 	 */
 	public void writeTypes(Collection<Object> arguments) {
 
-		writeTypesArray(arguments);
+		///writeTypesArray(arguments);
+		String tags=Tagger.getTypesArray(arguments);
+
+		//iterate string as bytes, write to stream
+		final byte[] stringBytes = tags.getBytes(charset);
+		for(int i=0;i<stringBytes.length;i++)
+		{
+			stream.write(stringBytes[i]);
+		}
 		// we always need to terminate with a zero,
 		// even if (especially when) the stream is already aligned.
-/*
-00000000  2f 74 65 73 74 34 00 00  2c 69 69 69 00 00 00 01  |/test4..,iii....|
-00000010  00 00 00 02 00 00 00 03                           |........|
-00000018
-(invalid)
-
-vs.
-
-00000000  2f 74 65 73 74 34 00 00  2c 69 69 69 00 00 00 00  |/test4..,iii....|
-00000010  00 00 00 01 00 00 00 02  00 00 00 03              |............|
-0000001c
-
-"irc the type tag declaration also has to end with a null byte on a 4-byte boundary so it is padded with any extra zeroes as required."
-https://www.native-instruments.com/forum/threads/learning-osc-from-scratch.64996/
-*/
 		stream.write(0);
 		// align the stream with padded bytes
 		alignStream();
