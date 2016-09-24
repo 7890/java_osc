@@ -5,6 +5,7 @@ import com.illposed.osc.utility.*;
 
 import java.util.List;
 import java.util.Date;
+import java.util.ArrayList;
 
 //javac -cp _build/ TestOSCPack.java && java -cp .:_build/ TestOSCPack
 
@@ -22,6 +23,8 @@ public class TestOSCPack
 	static char c='a';
 	static Date date=new Date();
 
+	static ArrayList ar=new ArrayList();
+
 	public static void main(String[] args) throws Exception
 	{
 		TestOSCPack t=new TestOSCPack(args);
@@ -29,34 +32,66 @@ public class TestOSCPack
 
 	public TestOSCPack(String[] args) throws Exception
 	{
+		ar.add(33);
+		ar.add("last arg");
+
+		OSCMessage o_norm=new OSCMessage();
+
+		o_norm.setAddress(address);
+		o_norm.add(s);
+		o_norm.add(f);
+		o_norm.add(d);
+		o_norm.add(l);
+		o_norm.add(i);
+		o_norm.add(b);
+		o_norm.add(null);
+		o_norm.add(c);
+		o_norm.add(date);
+		o_norm.addArguments(ar);
+
+		//binary representation of OSCPackMessage object
+		byte[] b0=o_norm.getByteArray();
+		//show byte by byte
+		System.out.println("OSC (normal) dump:");
+		Debug.hexdump(b0);
+		//remember for comparison
+		int i0=b0.length;
+
+//===================================
+
 		//create new empty message like a regular osc message but using OSCPackMessage class
 		OSCMessage op=new OSCPackMessage();
 							//index in msgpack
 		//! first char indicates oscpack	//0 (cut-off by OSCPortIn)
 		op.setAddress(address);			//0 address
 							//1 types as one string
-		op.addArgument(s);			//2
-		op.addArgument(f);			//...
-		op.addArgument(d);
-		op.addArgument(l);
-		op.addArgument(i);
-		op.addArgument(b);
-		op.addArgument(null);
-		op.addArgument(c);
-		op.addArgument(date);
+		op.add(s);				//2
+		op.add(f);				//...
+		op.add(d);
+		op.add(l);
+		op.add(i);
+		op.add(b);
+		op.add(null);
+		op.add(c);
+		op.add(date);
+		op.addArguments(ar);
 
 		//binary representation of OSCPackMessage object
 		byte[] b1=op.getByteArray();
 		//show byte by byte
 		System.out.println("OSCPack dump:");
-		hexdump(b1);
+		Debug.hexdump(b1);
 		//remember for comparison
 		int i1=b1.length;
 
+//===================================
+
 		OSCPackByteArrayToJavaConverter conv=new OSCPackByteArrayToJavaConverter();
 
-		//create regular OSCMessage object from OSCPackMessage binary format
+		//convert (parse) OSCPackMessage binary format to OSCMessage object
 		OSCMessage op_o=(OSCMessage)conv.convert(b1, b1.length);
+
+		System.out.println("results from parsing OSCPack bytes to Java object:");
 
 		//get header props
 		System.out.println("address: "+op_o.getAddress());
@@ -73,27 +108,10 @@ public class TestOSCPack
 
 		System.out.println("===");
 
-		//create the same message as regular OSCMessage object
-		OSCMessage o=new OSCMessage();
-		o.setAddress(address);
-		o.addArgument(s);
-		o.addArgument(f);
-		o.addArgument(d);
-		o.addArgument(l);
-		o.addArgument(i);
-		o.addArgument(b);
-		o.addArgument(null);
-		o.addArgument(c);
-		o.addArgument(date);
+//===================================
 
-		byte[] b2=o.getByteArray();
-		System.out.println("OSC dump:");
-		hexdump(b2);
-		int i2=b2.length;
-
-		System.out.println("===");
 		//show ratio: OSCPack / OSC -> should usually result in a SMALLER THAN 1 value
-		System.out.println("OSCPack size: " + i1 + " OSC size: " + i2 + " ratio OSCPack/OSC (without UDP framing): " + (float)i1/i2);
+		System.out.println("OSC size: " + i0 + " OSCPack size: " + i1 + " ratio OSCPack/OSC (without UDP framing): " + (float)i1/i0);
 
 		try
 		{
@@ -102,31 +120,16 @@ public class TestOSCPack
 			OSCPortOut portOut=new OSCPortOut(InetAddress.getByName("localhost"), 7890, ds);
 
 			//send the message
-			portOut.send(op_o);	//OSCPackMessage converted to OSCMessage
-			portOut.send(o);	//OSCMessage
+			portOut.send(o_norm);	//OSCMessage
+			portOut.send(op_o);	//OSCPackMessage converted from OSCPack bytes
 			portOut.send(op);	//OSCPackMesasge (regular osc libraries will fail)
 
-			System.err.println("3 messages sent to osc.udp://localhost:7890\nthe last message only works with OSCPack enabled libraries.");
+			System.err.println("3 messages sent to osc.udp://localhost:7890\nsome messages only work with OSCPack enabled libraries.");
 			System.err.println("done!");
 
 			portOut.close();
 		}
 		catch(Exception e){e.printStackTrace();}
 	}// end TestOSCPack constructor (run test)
-
-	//helper method to dump binary contents of OSCMessage and OSCPackMessage payloads
-	public void hexdump(byte[] bytes)
-	{
-		int bytesPerLine = 16;
-		int i;
-
-		for (i = 0; i<bytes.length; i++)
-		{
-			if (i % bytesPerLine == 0 && i!=0) {System.out.println();}
-			else if (i % (bytesPerLine/2) == 0 && i!=0) {System.out.print(" ");}
-			System.out.printf("%02x ", bytes[i]);// & 0xff);
-		}
-		System.out.println();
-	}
 }//end class TestOSCPack
 //EOF
