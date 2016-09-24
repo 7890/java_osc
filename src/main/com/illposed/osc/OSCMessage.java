@@ -10,6 +10,7 @@
 package com.illposed.osc;
 
 import com.illposed.osc.utility.JavaToByteArrayConverter;
+import com.illposed.osc.utility.Tagger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -101,6 +102,17 @@ public class OSCMessage extends AbstractOSCPacket {
 	public void addArgument(Object argument) {
 		arguments.add(argument);
 		contentChanged();
+	}
+
+	//wrapper
+	public void add(Object argument) {
+		addArgument(argument);
+	}
+
+	public void addArguments(Collection<Object> arguments) {
+		for (Object obj : arguments) {
+			addArgument(obj);
+		}
 	}
 
 	/**
