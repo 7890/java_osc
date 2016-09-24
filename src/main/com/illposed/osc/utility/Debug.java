@@ -24,17 +24,7 @@ public class Debug {
 					System.err.print(" |");
 					for(int k=i-bytesPerLine;k<i;k++)
 					{
-						if(bytes[k]<32) //if non-printable (first is space)
-						{
-							System.err.print(".");
-						}
-						else
-						{
-							try
-							{
-								System.err.printf("%c",(byte)bytes[k]);
-							}catch(Exception e){System.err.print(".");}
-						}
+						dumpbyte(bytes[k]);
 					}
 					System.err.printf("|\n");
 				}
@@ -46,27 +36,46 @@ public class Debug {
 
 		//handle remainder on last line
 		int byte_position_on_last_line=bytes.length % bytesPerLine;
-		for( int k=byte_position_on_last_line; k < bytesPerLine; k++ )
+		if(byte_position_on_last_line==0)
 		{
-			if (k % (bytesPerLine/2) == 0 && k!=0) {System.err.print(" ");}
-			System.err.printf("   ");
+			System.err.print(" |");
+			for(int j=  bytes.length - bytesPerLine; j < bytes.length; j++)
+			{
+				dumpbyte(bytes[j]);
+			}
+
+			System.err.printf("|\n\n");
 		}
-		System.err.print(" |");
-		for(int j=  bytes.length - byte_position_on_last_line; j < bytes.length; j++)
+		else
 		{
-		if(bytes[j]<32) //if non-printable (first is space)
+			for( int k=byte_position_on_last_line; k < bytesPerLine; k++ )
 			{
-				System.err.print(".");
+				if (k % (bytesPerLine/2) == 0 && k!=0) {System.err.print(" ");}
+				System.err.printf("   ");
 			}
-			else
+
+			System.err.print(" |");
+			for(int j=  bytes.length - byte_position_on_last_line; j < bytes.length; j++)
 			{
-				try
-				{
-					System.err.printf("%c",(byte)bytes[j]);
-				}catch(Exception e){System.err.print(".");}
+				dumpbyte(bytes[j]);
 			}
+			System.err.printf("|\n\n");
 		}
-		System.err.printf("|\n\n");
+	}
+
+	public static void dumpbyte(byte b)
+	{
+		if(b<32) //if non-printable (first is space)
+		{
+			System.err.print(".");
+		}
+		else
+		{
+			try
+			{
+				System.err.printf("%c",(byte)b);
+			}catch(Exception e){System.err.print(".");}
+		}
 	}
 }//end class Debug
 //EOF
