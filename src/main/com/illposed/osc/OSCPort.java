@@ -25,9 +25,12 @@ public class OSCPort {
 	public static final int DEFAULT_SC_OSC_PORT = 57110;
 	public static final int DEFAULT_SC_LANG_OSC_PORT = 57120;
 
+	protected boolean debug=false;
+
 	protected OSCPort(DatagramSocket socket, int port) {
 		this.socket = socket;
 		this.port = port;
+		this.debug=false;
 	}
 
 	/**
@@ -75,8 +78,21 @@ public class OSCPort {
 		socket.close();
 	}
 
+	//
 	public void setPort(int port)
 	{
 		this.port=port;
 	}
-}
+
+	//
+	public void setDebug(boolean enabled)
+	{
+		debug=enabled;
+	}
+
+	public boolean getDebug()
+	{
+		return debug;
+	}
+}//end class OSCPort
+//EOF

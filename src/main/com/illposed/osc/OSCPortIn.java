@@ -14,6 +14,8 @@ import com.illposed.osc.utility.OSCByteArrayToJavaConverter;
 import com.illposed.osc.utility.OSCPackByteArrayToJavaConverter;
 import com.illposed.osc.utility.OSCPacketDispatcher;
 import com.illposed.osc.utility.OSCPatternAddressSelector;
+import com.illposed.osc.utility.Debug;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -118,6 +120,12 @@ public class OSCPortIn extends OSCPort implements Runnable {
 						// the exception is expected/normal, so we hide it
 						continue;
 					}
+				}
+
+				if(debug)
+				{
+					System.err.println("OSCPortIn: DatagramPacket received ("+packet.getLength()+" bytes):");
+					Debug.hexdump(buffer,packet.getLength());
 				}
 				//decide which bytearray to java converter to use
 				ByteArrayToJavaConverter conv=null;

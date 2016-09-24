@@ -8,6 +8,8 @@
 
 package com.illposed.osc;
 
+import com.illposed.osc.utility.Debug;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -90,6 +92,11 @@ public class OSCPortOut extends OSCPort {
 	 */
 	public void send(OSCPacket aPacket) throws IOException {
 		final byte[] byteArray = aPacket.getByteArray();
+		if(debug)
+		{
+			System.err.println("OSCPortOut: creating DatagramPacket with content ("+byteArray.length+" bytes):");
+			Debug.hexdump(byteArray);
+		}
 		final DatagramPacket packet =
 				new DatagramPacket(byteArray, byteArray.length, address, getPort());
 		getSocket().send(packet);
@@ -101,4 +108,5 @@ public class OSCPortOut extends OSCPort {
 		this.address = address;
 		super.setPort(port);
 	}
-}
+}//end class OSCPortOut
+//EOF

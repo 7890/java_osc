@@ -13,6 +13,8 @@ class oscdump
 	static boolean shutdown_requested=false;
 
 	static boolean debug=true;
+	static boolean debug_port_in_dump	=false;
+	static boolean debug_msg_in_dump	=true;
 
 	public static void main(String[] args)
 	{
@@ -40,6 +42,11 @@ class oscdump
 			if(args.length>1)
 			{
 				filter=args[1];
+			}
+
+			if(debug && debug_port_in_dump)
+			{
+				portIn.setDebug(true);
 			}
 
 			// /!\  while /* matches every path with a SINGLE component,
@@ -112,7 +119,7 @@ static class GenericOSCListener implements OSCListener
 			}
 			System.out.println("");
 
-			if(debug)
+			if(debug && debug_msg_in_dump)
 			{
 				Debug.hexdump(msg.getByteArray());
 			}
