@@ -14,7 +14,6 @@ import com.illposed.osc.utility.OSCByteArrayToJavaConverter;
 import com.illposed.osc.utility.OSCPackByteArrayToJavaConverter;
 import com.illposed.osc.utility.OSCPacketDispatcher;
 import com.illposed.osc.utility.OSCPatternAddressSelector;
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -136,7 +135,7 @@ public class OSCPortIn extends OSCPort implements Runnable {
 						packet.getLength(),packet.getAddress().getHostAddress(),packet.getPort());
 
 				dispatcher.dispatchPacket(oscPacket);
-			} catch (IOException ex) {
+			} catch (Exception ex) {
 				ex.printStackTrace(); // XXX This may not be a good idea, as this could easily lead to a never ending series of exceptions thrown (due to the non-exited while loop), and because the user of the lib may want to handle this case himself
 			}
 		}
