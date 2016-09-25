@@ -14,7 +14,7 @@ class oscdump
 
 	static boolean debug=true;
 	static boolean debug_port_in_dump	=false;
-	static boolean debug_msg_in_dump	=true;
+	static boolean debug_msg_in_dump	=false;
 
 	public static void main(String[] args)
 	{
@@ -106,7 +106,7 @@ static class GenericOSCListener implements OSCListener
 
 		try
 		{
-			System.out.print(InetAddress.getByName(msg.getRemoteHost())+":"+msg.getRemotePort()+" ");
+			System.out.print(InetAddress.getByName(msg.getRemoteHost()).getHostName()+":"+msg.getRemotePort()+" ");
 			System.out.print(path);
 			if(argsSize>0)
 			{
@@ -114,7 +114,14 @@ static class GenericOSCListener implements OSCListener
 				System.out.print(" "+msg.getTypetagString());
 				for(int i=0;i<argsSize;i++)
 				{
-					System.out.print(" "+args.get(i));
+					if(args.get(i) instanceof byte[])
+					{
+						System.out.print(" ["+((byte[])args.get(i)).length+" byte blob]");
+					}
+					else
+					{
+						System.out.print(" "+args.get(i));
+					}
 				}
 			}
 			System.out.println("");
