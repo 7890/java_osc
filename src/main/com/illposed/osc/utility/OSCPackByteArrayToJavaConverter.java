@@ -84,10 +84,14 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 		{
 			// skip the "#bundle " stuff
 			up.unpackString();
+
 			t=up.unpackLong(); //ntp timestamp
 			timestamp = NTPTime.readTimeTag(t);
 
 			bundle = new OSCBundle(timestamp);
+
+			bundle.setRemoteHost(remoteHost);
+			bundle.setRemotePort(remotePort);
 
 			///
 			conv_regular = new OSCByteArrayToJavaConverter();
@@ -122,7 +126,7 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 					conv=conv_regular;
 				}
 
-				final OSCPacket packet = conv.convert(packetBytes, packetLength);
+				final OSCPacket packet = conv.convert(packetBytes, packetLength, remoteHost, remotePort);
 				bundle.addPacket(packet);
 			}catch(Exception e){/*e.printStackTrace();*/break;}
 		}
@@ -142,8 +146,8 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 		{
 			message.setAddress(up.unpackString());
 
-			message.setRemoteHost(this.remoteHost);
-			message.setRemotePort(this.remotePort);
+			message.setRemoteHost(remoteHost);
+			message.setRemotePort(remotePort);
 
 			String typestmp=up.unpackString();
 

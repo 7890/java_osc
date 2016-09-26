@@ -46,19 +46,18 @@ public class OSCShortcutPacketDispatcher extends OSCPacketDispatcher {
 		final List<Object> args=m.getArguments();
 		int id=(Integer)args.get(0);
 //		System.err.println("id: "+id);
-
 		OSCShortcut sc=osm.get(id);
-
 		if( sc!=null )
 		{
 //			System.err.println("found shortcut "+sc.getPath()+" "+sc.getTypetags() );
-			Debug.hexdump(m.getByteArray());
-
+//			Debug.hexdump(m.getByteArray());
 			byte[] b=(byte[])args.get(1);
-
-			Debug.hexdump(b);
-
-			return new OSCMessage(sc.getPath(),sc.getTypetags(),b);
+//			Debug.hexdump(b);
+			OSCMessage m_ret=new OSCMessage(sc.getPath(),sc.getTypetags(),b);
+			//clone host, port properties from original message
+			m_ret.setRemoteHost(m.getRemoteHost());
+			m_ret.setRemotePort(m.getRemotePort());
+			return m_ret;
 		}
 
 		//maybe throw error?

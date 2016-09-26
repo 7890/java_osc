@@ -115,8 +115,12 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 	private OSCBundle convertBundle(final Input rawInput) {
 		// skip the "#bundle " stuff
 		rawInput.addToStreamPosition(BUNDLE_START.length() + 1);
+
 		final Date timestamp = readTimeTag(rawInput);
 		final OSCBundle bundle = new OSCBundle(timestamp);
+
+		bundle.setRemoteHost(remoteHost);
+		bundle.setRemotePort(remotePort);
 
 		final OSCByteArrayToJavaConverter conv_regular
 				= new OSCByteArrayToJavaConverter();
@@ -149,7 +153,7 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 			{
 				conv=conv_regular;
 			}
-			final OSCPacket packet = conv.convert(packetBytes, packetLength);
+			final OSCPacket packet = conv.convert(packetBytes, packetLength, remoteHost, remotePort);
 			bundle.addPacket(packet);
 		}
 		return bundle;
@@ -190,8 +194,8 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 	private OSCMessage convertMessage(final Input rawInput) {
 		final OSCMessage message = new OSCMessage();
 		message.setAddress(readString(rawInput));
-		message.setRemoteHost(this.remoteHost);
-		message.setRemotePort(this.remotePort);
+		message.setRemoteHost(remoteHost);
+		message.setRemotePort(remotePort);
 		final CharSequence types = readTypes(rawInput);
 		message.setTypetagString(""+types);
 		message.addArguments(convertArguments(rawInput,types));
