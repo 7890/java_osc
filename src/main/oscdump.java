@@ -16,16 +16,22 @@ class oscdump
 	static boolean debug_port_in_dump	=false;
 	static boolean debug_msg_in_dump	=false;
 
+	static OSCShortcutManager osm=OSCShortcutManager.getInstance();
+
 	public static void main(String[] args)
 	{
-//		System.out.println("oscdump");
+//		System.err.println("oscdump");
+
+		//test add shortcut
+		OSCShortcut os=osm.add(new OSCShortcut("/foo/bar","sfdhiTNctis",1234));
 
 		//parse arg: port
 		//minimum #args: 1
-		if(args.length<1 || args.length>2)
+		if(args.length<1)
 		{
-			System.err.println("syntax: <port> (<filter string>)");
+			System.err.println("syntax: <port> (<filter string> ...)");
 			System.err.println("default filter string: '//*'");
+			System.err.println("multiple filters are logically combined with OR");
 			System.exit(1);
 		}
 
@@ -38,21 +44,30 @@ class oscdump
 			//OSCPortIn 
 			portIn=new OSCPortIn(ds);
 
-			String filter="//*";
-			if(args.length>1)
-			{
-				filter=args[1];
-			}
-
 			if(debug && debug_port_in_dump)
 			{
 				portIn.setDebug(true);
 			}
 
-			// /!\  while /* matches every path with a SINGLE component,
-			//      //* will match any message (with more than one part, separated by '/')
-			portIn.addListener(filter, new GenericOSCListener());
-			System.err.println("listening on UDP port "+local_port+", filtering for messages matching '"+filter+"'" );
+			if(args.length==1) //default, if no filter(s) given
+			{
+				// /!\  while /* matches every path with a SINGLE component,
+				//      //* will match any message (with more than one part, separated by '/')
+				portIn.addListener("//*", new GenericOSCListener());
+			}
+			else
+			{
+				//add filters. if any of the filter matches, the message will be dispatched
+
+				int absolute_filter_arg_index=1;
+				while(absolute_filter_arg_index<args.length)
+				{
+					String filter=args[absolute_filter_arg_index];
+					portIn.addListener(filter, new GenericOSCListener());
+					absolute_filter_arg_index++;
+				}
+			}
+			System.err.println("listening on UDP port "+local_port);
 			portIn.startListening();
 			while(1==1)
 			{
