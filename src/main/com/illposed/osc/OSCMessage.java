@@ -11,6 +11,8 @@ package com.illposed.osc;
 
 import com.illposed.osc.utility.JavaToByteArrayConverter;
 import com.illposed.osc.utility.OSCJavaToByteArrayConverter;
+import com.illposed.osc.utility.OSCByteArrayToJavaConverter;
+import com.illposed.osc.utility.Tagger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,6 +79,14 @@ public class OSCMessage extends AbstractOSCPacket {
 		}
 	}
 
+	//
+	public OSCMessage(final String address, final String typetags, final byte[] blobBytes) {
+		this(address, null);
+
+		OSCByteArrayToJavaConverter conv=new OSCByteArrayToJavaConverter();
+		addArguments(conv.convertArguments(blobBytes, typetags));
+	}
+
 	/**
 	 * The receiver of this message.
 	 * @return the receiver of this OSC Message
@@ -113,6 +123,12 @@ public class OSCMessage extends AbstractOSCPacket {
 		for (Object obj : arguments) {
 			addArgument(obj);
 		}
+	}
+
+	//
+	public void clearArguments() {
+		arguments.clear();
+		contentChanged();
 	}
 
 	/**
@@ -167,6 +183,11 @@ public class OSCMessage extends AbstractOSCPacket {
 	protected void computeArgumentsByteArray(JavaToByteArrayConverter stream) {
 		stream.write(',');
 		stream.writeTypes(arguments);
+		computePlainArgumentsByteArray(stream);
+	}
+
+	//
+	protected void computePlainArgumentsByteArray(JavaToByteArrayConverter stream) {
 		for (final Object argument : arguments) {
 			stream.write(argument);
 		}
