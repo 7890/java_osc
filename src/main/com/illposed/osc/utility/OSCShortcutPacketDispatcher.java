@@ -45,13 +45,13 @@ public class OSCShortcutPacketDispatcher extends OSCPacketDispatcher {
 
 		final List<Object> args=m.getArguments();
 		int id=(Integer)args.get(0);
-		System.out.println("id: "+id);
+//		System.err.println("id: "+id);
 
 		OSCShortcut sc=osm.get(id);
 
 		if( sc!=null )
 		{
-			System.out.println("HAVE SHORTCUT!! "+sc.getPath()+" "+sc.getTypetags() );
+//			System.err.println("found shortcut "+sc.getPath()+" "+sc.getTypetags() );
 			Debug.hexdump(m.getByteArray());
 
 			byte[] b=(byte[])args.get(1);
@@ -70,7 +70,6 @@ public class OSCShortcutPacketDispatcher extends OSCPacketDispatcher {
 	protected void dispatchMessage(OSCMessage message, Date time) {
 
 		message=unfoldOSCShortcutMessage(message);
-//		System.err.println("found shortened: " + message.getAddress()+" "+message.getTypetagString());
 		for (final Entry<AddressSelector, OSCListener> addrList : selectorToListener.entrySet()) {
 			if (addrList.getKey().matches(message.getAddress())) {
 				addrList.getValue().acceptMessage(time, message);
