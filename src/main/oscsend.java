@@ -141,23 +141,47 @@ class oscsend
 //		System.out.println("oscsend");
 		if(args.length<3)
 		{
-			System.err.println("syntax: oscsend <host> <port> <message address/path> (<typetags> (<args> ...))");
-			System.err.println("supported types: i, h, f, d, s, b, c, N, T, F, I, t");
-			System.err.println("types without argument: N, T, F, I");
-			System.err.println("b: path to file, used as blob content");
-			System.err.println("c: single character or hex number format '0x00'");
-			System.err.println("t: 'now' or long (unix time, millis since 1970)");
-			System.err.println("-a message must at least have an address (with no typetags and args)");
-			System.err.println("-a message can have a typetag");
-			System.err.println("-a typetag is followed by 0 or more arguments");
-			System.err.println("to send a bundle, add the next message starting with the address right after the last message.");
+			System.err.println("oscsend - send OSC (Open Sound Control) messages\n");
+
+			System.err.println("usage: oscsend <hostname> <port> <address> (<types> (<values> ...))\n");
+
+			System.err.println("description");
+			System.err.println("hostname: the remote hostname or IP address");
+			System.err.println("port    : the remote UDP port to connect to\n");
+
+			System.err.println("address : the OSC address (path) for the message");
+			System.err.println("types   : a string setting the types of the values that follow\n");
+
+			System.err.println("    i - 32bit integer");
+			System.err.println("    h - 64bit integer");
+			System.err.println("    f - 32bit floating point number");
+			System.err.println("    d - 64bit (double) floating point number");
+			System.err.println("    s - string");
+			System.err.println("    b - blob (binary / raw bytes)");
+			System.err.println("        path to file, used as blob content");
+			System.err.println("    c - char");
+			System.err.println("        single character or hex number format '0x00'");
+			System.err.println("    N - NIL           (no value required)");
+			System.err.println("    T - TRUE          (no value required)");
+			System.err.println("    F - FALSE         (no value required)");
+			System.err.println("    I - INFINITUM     (no value required)");
+			System.err.println("    t - timestamp");
+			System.err.println("        literal 'NOW' or type 'h' (unix time millis)\n");
+
+			System.err.println("-the minimal valid message must only have an address set.");
+			System.err.println("-a message can contain a string (typetags) defining the types to transmit.");
+			System.err.println("-the typetags are followed by 0 or more values corresponding to the typetags.");
+
+			System.err.println("to send a bundle, add the next message starting with the address right after the last message.\n");
+
 			System.err.println("examples");
 			System.err.println("  send simple message: oscsend localhost 7890 /hi");
 			System.err.println("  send bundle: oscsend localhost 7890 /hi /hutsefluts h 42 /foo ifs 1 .2 \"bar last\"");
 			System.err.println("  send timestamp: oscsend localhost 7890 /x t now");
-			System.err.println("  send blob: oscsend localhost 7890 /y b /etc/lsb-release");
-			System.err.println("oscsend does support UDP only.");
-			System.err.println("the maximum UDP payload size (OSC message byte array) can not exceed "+OSCPortIn.BUFFER_SIZE+" bytes.");
+			System.err.println("  send blob: oscsend localhost 7890 /y b /etc/lsb-release\n");
+
+			System.err.println("oscsend supports UDP only.");
+			System.err.println("the maximum UDP payload size (serialized OSC message byte array) can not exceed "+OSCPortIn.BUFFER_SIZE+" bytes.");
 			System.exit(1);
 		}
 
