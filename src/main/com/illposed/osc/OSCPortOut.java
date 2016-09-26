@@ -100,6 +100,10 @@ public class OSCPortOut extends OSCPort {
 		final DatagramPacket packet =
 				new DatagramPacket(byteArray, byteArray.length, address, getPort());
 		getSocket().send(packet);
+
+		//update stats
+		successfully_processed_count++;
+		successfully_processed_bytes+=byteArray.length;
 	}
 
 	//set new target address for this port

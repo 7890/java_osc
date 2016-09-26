@@ -149,7 +149,7 @@ doesn't like fragments, then the entire packet is lost.
 					Debug.hexdump(buffer,packet.getLength());
 				}
 				//decide which bytearray to java converter to use
-				ByteArrayToJavaConverter conv=null;
+				final ByteArrayToJavaConverter conv;
 				if(buffer[0]=='!') //OSCPack
 				{
 					conv=pack_converter;
@@ -162,6 +162,12 @@ doesn't like fragments, then the entire packet is lost.
 				//create common datastructure, to be dispatched to listeners
 				final OSCPacket oscPacket = conv.convert(buffer,
 						packet.getLength(),packet.getAddress().getHostAddress(),packet.getPort());
+
+				//update stats, considering success here
+				//dispatcher & friends can still fail
+				//message consumers already have updated stats (including this message)
+				successfully_processed_count++;
+				successfully_processed_bytes+=packet.getLength();
 
 				dispatcher.dispatchPacket(oscPacket);
 			} catch (Exception ex) {

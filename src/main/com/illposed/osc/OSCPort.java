@@ -27,6 +27,13 @@ public class OSCPort {
 
 	protected boolean debug=false;
 
+	//number of *datagrams* and bytes successfully sent or received.
+	//a datagram can be a bundle, messages therein aren't counted separately.
+	//for receive: considered success if datagram could be received and converted 
+	//to OSCPacket, prior to dispatching.
+	protected long successfully_processed_count=0;
+	protected long successfully_processed_bytes=0;
+
 	protected OSCPort(DatagramSocket socket, int port) {
 		this.socket = socket;
 		this.port = port;
@@ -90,9 +97,22 @@ public class OSCPort {
 		debug=enabled;
 	}
 
+	//
 	public boolean getDebug()
 	{
 		return debug;
+	}
+
+	//
+	public long getSuccessfullyProcessedCount()
+	{
+		return successfully_processed_count;
+	}
+
+	//
+	public long getSuccessfullyProcessedBytes()
+	{
+		return successfully_processed_bytes;
 	}
 }//end class OSCPort
 //EOF
