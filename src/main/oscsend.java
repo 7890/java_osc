@@ -1,6 +1,7 @@
 import java.net.*;
 import com.illposed.osc.*;
 import java.util.*;
+import java.io.RandomAccessFile;
 
 //tb/160301
 //mimic oscsend from liblo
@@ -9,7 +10,7 @@ class oscsend
 {
 	static int absolute_arg_index=0;
 
-	public static OSCMessage createMessageFromArgs(String[] args)
+	public static OSCMessage createMessageFromArgs(String[] args) throws Exception
 	{
 		String path=args[absolute_arg_index];
 		absolute_arg_index++;
@@ -59,12 +60,16 @@ class oscsend
 					msg_args.add(args[absolute_arg_index]);
 					absolute_arg_index++;
 				}
-/*
 				else if(type.equals("b"))
 				{
-					//read from file?
+					//read from file
+					String filename=args[absolute_arg_index];
+					RandomAccessFile f = new RandomAccessFile(filename, "r");
+					byte[] b = new byte[(int)f.length()];
+					f.readFully(b);
+					msg_args.add(b);
+					absolute_arg_index++;
 				}
-*/
 				else if(type.equals("c"))
 				{
 					String cstr=args[absolute_arg_index];
@@ -137,8 +142,9 @@ class oscsend
 		if(args.length<3)
 		{
 			System.err.println("syntax: oscsend <host> <port> <message address/path> (<typetags> (<args> ...))");
-			System.err.println("supported types: i, h, f, d, s, c, N, T, F, I, t");
+			System.err.println("supported types: i, h, f, d, s, b, c, N, T, F, I, t");
 			System.err.println("types without argument: N, T, F, I");
+			System.err.println("b: path to file, used as blob content");
 			System.err.println("c: single character or hex number format '0x00'");
 			System.err.println("t: 'now' or long (unix time, millis since 1970)");
 			System.err.println("-a message must at least have an address (with no typetags and args)");
@@ -148,7 +154,10 @@ class oscsend
 			System.err.println("examples");
 			System.err.println("  send simple message: oscsend localhost 7890 /hi");
 			System.err.println("  send bundle: oscsend localhost 7890 /hi /hutsefluts h 42 /foo ifs 1 .2 \"bar last\"");
+			System.err.println("  send timestamp: oscsend localhost 7890 /x t now");
+			System.err.println("  send blob: oscsend localhost 7890 /y b /etc/lsb-release");
 			System.err.println("oscsend does support UDP only.");
+			System.err.println("the maximum UDP payload size (OSC message byte array) can not exceed "+OSCPortIn.BUFFER_SIZE+" bytes.");
 			System.exit(1);
 		}
 
