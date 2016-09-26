@@ -52,7 +52,7 @@ public class OSCPortIn extends OSCPort implements Runnable {
 	 * increased to 1536, as this is a common MTU.
 	 */
 //	private static final int BUFFER_SIZE = 1536;
-	private static final int BUFFER_SIZE = 65507;
+	public static final int BUFFER_SIZE = 65507;
 
 /*
 (2^16)-1 = 65535
