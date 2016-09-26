@@ -26,7 +26,7 @@ import java.util.Map.Entry;
  */
 public class OSCPacketDispatcher {
 
-	private final Map<AddressSelector, OSCListener> selectorToListener;
+	protected final Map<AddressSelector, OSCListener> selectorToListener;
 
 	public OSCPacketDispatcher() {
 		this.selectorToListener = new HashMap<AddressSelector, OSCListener>();
@@ -63,7 +63,7 @@ public class OSCPacketDispatcher {
 		}
 	}
 
-	private void dispatchMessage(OSCMessage message, Date time) {
+	protected void dispatchMessage(OSCMessage message, Date time) {
 		for (final Entry<AddressSelector, OSCListener> addrList : selectorToListener.entrySet()) {
 			if (addrList.getKey().matches(message.getAddress())) {
 				addrList.getValue().acceptMessage(time, message);
