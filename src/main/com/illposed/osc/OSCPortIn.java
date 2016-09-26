@@ -12,7 +12,7 @@ package com.illposed.osc;
 import com.illposed.osc.utility.ByteArrayToJavaConverter;
 import com.illposed.osc.utility.OSCByteArrayToJavaConverter;
 import com.illposed.osc.utility.OSCPackByteArrayToJavaConverter;
-import com.illposed.osc.utility.OSCPacketDispatcher;
+import com.illposed.osc.utility.OSCShortcutPacketDispatcher;
 import com.illposed.osc.utility.OSCPatternAddressSelector;
 import com.illposed.osc.utility.Debug;
 
@@ -78,7 +78,7 @@ doesn't like fragments, then the entire packet is lost.
 	private boolean listening;
 	private final OSCByteArrayToJavaConverter converter;
 	private final OSCPackByteArrayToJavaConverter pack_converter;
-	private final OSCPacketDispatcher dispatcher;
+	private final OSCShortcutPacketDispatcher dispatcher;
 
 	/**
 	 * Create an OSCPort that listens using a specified socket.
@@ -89,7 +89,7 @@ doesn't like fragments, then the entire packet is lost.
 
 		this.converter = new OSCByteArrayToJavaConverter();
 		this.pack_converter = new OSCPackByteArrayToJavaConverter();
-		this.dispatcher = new OSCPacketDispatcher();
+		this.dispatcher = new OSCShortcutPacketDispatcher();
 	}
 
 	/**
