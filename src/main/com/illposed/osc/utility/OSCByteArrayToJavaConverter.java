@@ -140,7 +140,7 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 			rawInput.addToStreamPosition(packetLength);
 
 			//decide which converter to use. messages inside blobs can be packed.
-			ByteArrayToJavaConverter conv;
+			final ByteArrayToJavaConverter conv;
 			if(packetBytes.length>0 && packetBytes[0]=='!')
 			{
 				conv=conv_packed;
@@ -154,6 +154,34 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 		}
 		return bundle;
 	}
+
+	//
+	public List<Object> convertArguments(final Input rawInput, final CharSequence types)
+	{
+		final List<Object> args=new ArrayList<Object>();
+
+		for (int ti = 0; ti < types.length(); ++ti) {
+			if ('[' == types.charAt(ti)) {
+				// we're looking at an array -- read it in
+				args.add(readArray(rawInput, types, ++ti));
+				// then increment i to the end of the array
+				while (types.charAt(ti) != ']') {
+					ti++;
+				}
+			} else {
+				args.add(readArgument(rawInput, types.charAt(ti)));
+			}
+		}
+		return args;
+	}
+
+	//wrapper
+	public List<Object> convertArguments(final byte[] bytes, final String types)
+	{
+		final Input rawInput = new Input(bytes, bytes.length);
+		return convertArguments(rawInput,types);
+	}
+
 	/**
 	 * Converts the byte array to a simple message.
 	 * Assumes that the byte array is a message.
@@ -166,18 +194,7 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 		message.setRemotePort(this.remotePort);
 		final CharSequence types = readTypes(rawInput);
 		message.setTypetagString(""+types);
-		for (int ti = 0; ti < types.length(); ++ti) {
-			if ('[' == types.charAt(ti)) {
-				// we're looking at an array -- read it in
-				message.addArgument(readArray(rawInput, types, ++ti));
-				// then increment i to the end of the array
-				while (types.charAt(ti) != ']') {
-					ti++;
-				}
-			} else {
-				message.addArgument(readArgument(rawInput, types.charAt(ti)));
-			}
-		}
+		message.addArguments(convertArguments(rawInput,types));
 		return message;
 	}
 
