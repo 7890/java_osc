@@ -61,7 +61,7 @@ compile_msgpack()
 
 	find "msgpack-core/src/main/" -name *.java > "$TMPFILE"
 
-	$JAVAC -classpath "$build" -d "$build" @"$TMPFILE"
+	$JAVAC -classpath "$build" -d "$build" @"$TMPFILE" 2>/dev/null
 }
 
 #========================================================================
@@ -90,7 +90,7 @@ create_java_osc_jar()
 	#include oscsend, oscdump source as examples
 	#include generated javadoc
 	#include license
-	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/ \
+	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/ org/ \
 		*.class oscsend.java oscdump.java doc LICENSE resources/
 	ls -l JavaOSC_"$NOW".jar
 
