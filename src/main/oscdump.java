@@ -106,7 +106,8 @@ static class GenericOSCListener implements OSCListener
 
 		try
 		{
-			System.out.print(InetAddress.getByName(msg.getRemoteHost()).getHostName()+":"+msg.getRemotePort()+" ");
+			System.out.print(portIn.getSuccessfullyProcessedCount()+") "
+				+InetAddress.getByName(msg.getRemoteHost()).getHostName()+":"+msg.getRemotePort()+" ");
 			System.out.print(path);
 			if(argsSize>0)
 			{
@@ -117,6 +118,18 @@ static class GenericOSCListener implements OSCListener
 					if(args.get(i) instanceof byte[])
 					{
 						System.out.print(" ["+((byte[])args.get(i)).length+" byte blob]");
+					}
+					else if(args.get(i) instanceof String)
+					{
+						System.out.print(" \""+(String)args.get(i)+"\"");
+					}
+					else if(args.get(i) instanceof Date)
+					{
+						System.out.print(" ("+(Date)args.get(i)+")");
+					}
+					else if(args.get(i) instanceof Character)
+					{
+						System.out.print(" '"+args.get(i)+"'");
 					}
 					else
 					{
