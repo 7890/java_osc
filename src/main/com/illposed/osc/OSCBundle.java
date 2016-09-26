@@ -107,17 +107,26 @@ public class OSCBundle extends AbstractOSCPacket {
 	 * Set the time the bundle will execute.
 	 * @param timestamp Date
 	 */
-	public void setTimestamp(Date timestamp) {
+	public OSCBundle setTimestamp(Date timestamp) {
 		this.timestamp = clone(timestamp);
+		return this;
 	}
 
 	/**
 	 * Add a packet to the list of packets in this bundle.
 	 * @param packet OSCMessage or OSCBundle
 	 */
-	public void addPacket(OSCPacket packet) {
+	public OSCBundle addPacket(OSCPacket packet) {
 		packets.add(packet);
 		contentChanged();
+		return this;
+	}
+
+	//wrapper
+	public OSCBundle add(OSCPacket packet) {
+		packets.add(packet);
+		contentChanged();
+		return this;
 	}
 
 	/**
