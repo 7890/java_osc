@@ -99,36 +99,41 @@ public class OSCMessage extends AbstractOSCPacket {
 	 * Set the address of this message.
 	 * @param address the receiver of the message
 	 */
-	public void setAddress(String address) {
+	public OSCMessage setAddress(String address) {
 		checkAddress(address);
 		this.address = address;
 		contentChanged();
+		return this;
 	}
 
 	/**
 	 * Add an argument to the list of arguments.
 	 * @param argument a Float, Double, String, Character, Integer, Long, Boolean, null or an array of these
 	 */
-	public void addArgument(Object argument) {
+	public OSCMessage addArgument(Object argument) {
 		arguments.add(argument);
 		contentChanged();
+		return this;
 	}
 
 	//wrapper
-	public void add(Object argument) {
+	public OSCMessage add(Object argument) {
 		addArgument(argument);
+		return this;
 	}
 
-	public void addArguments(Collection<Object> arguments) {
+	public OSCMessage addArguments(Collection<Object> arguments) {
 		for (Object obj : arguments) {
 			addArgument(obj);
 		}
+		return this;
 	}
 
 	//
-	public void clearArguments() {
+	public OSCMessage clearArguments() {
 		arguments.clear();
 		contentChanged();
+		return this;
 	}
 
 	/**
