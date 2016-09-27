@@ -52,8 +52,10 @@ class oscdump
 			if(args.length==1) //default, if no filter(s) given
 			{
 				// /!\  while /* matches every path with a SINGLE component,
-				//      //* will match any message (with more than one part, separated by '/')
+				//      //* will match any message (any number of parts, separated by '/')
 				portIn.addListener("//*", new GenericOSCListener());
+				// we also want to match a single slash
+				portIn.addListener("/", new GenericOSCListener());
 			}
 			else
 			{
