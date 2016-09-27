@@ -53,25 +53,34 @@ public class OSCShortcutPacketDispatcher extends OSCPacketDispatcher {
 //			Debug.hexdump(m.getByteArray());
 			byte[] b=(byte[])args.get(1);
 //			Debug.hexdump(b);
+
 			OSCMessage m_ret=new OSCMessage(sc.getPath(),sc.getTypetags(),b);
 			//clone host, port properties from original message
 			m_ret.setRemoteHost(m.getRemoteHost());
 			m_ret.setRemotePort(m.getRemotePort());
 			return m_ret;
 		}
-
-		//maybe throw error?
-		//for now, return unchanged message (/@ ib)
-		return m;
+		else
+		{
+			throw new RuntimeException("could not find matching shortcut for id "+id);
+		}
 	}
 
 	@Override
 	protected void dispatchMessage(OSCMessage message, Date time) {
-
-		message=unfoldOSCShortcutMessage(message);
+		OSCMessage m=null;
+		try
+		{
+			m=unfoldOSCShortcutMessage(message);
+		}
+		catch(Exception e)
+		{
+			System.err.println(e);
+			m=message;
+		}
 		for (final Entry<AddressSelector, OSCListener> addrList : selectorToListener.entrySet()) {
-			if (addrList.getKey().matches(message.getAddress())) {
-				addrList.getValue().acceptMessage(time, message);
+			if (addrList.getKey().matches(m.getAddress())) {
+				addrList.getValue().acceptMessage(time, m);
 			}
 		}
 	}

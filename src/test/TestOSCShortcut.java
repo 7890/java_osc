@@ -38,7 +38,7 @@ public class TestOSCShortcut
 		//test fill shortcuts
 		OSCShortcutManager osm=OSCShortcutManager.getInstance();
 		OSCShortcut os=osm.add(new OSCShortcut("/foo/bar","sfdhiTNctis",1234));
-		osm.add(new OSCShortcut("/a","",1235));
+//		OSCShortcut os=osm.add(new OSCShortcut("/a","",1235));
 		System.out.println("OSCShortcut id: " + os.getID());
 		System.out.println("OSCShortcut symbol: " + os.getSymbol());
 		System.out.println("total count of OSCShortcuts: " + osm.size());

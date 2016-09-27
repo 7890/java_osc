@@ -82,7 +82,7 @@ public class OSCMessage extends AbstractOSCPacket {
 	//
 	public OSCMessage(final String address, final String typetags, final byte[] blobBytes) {
 		this(address, null);
-
+		setTypetagString(typetags);
 		OSCByteArrayToJavaConverter conv=new OSCByteArrayToJavaConverter();
 		addArguments(conv.convertArguments(blobBytes, typetags));
 	}
