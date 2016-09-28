@@ -47,8 +47,9 @@ compile_java_osc()
 	echo "compiling files in $src/test to directory $build ..."
 	find "$src/test/" -name *.java > "$TMPFILE"
 
+#should here check if junit_jar found
 	mkdir -p "$build"/test
-	$JAVAC -classpath "$build":/usr/share/java/junit4-4.11.jar -d "$build"/test @"$TMPFILE"
+	$JAVAC -classpath "$build":"$junit_jar" -d "$build"/test @"$TMPFILE"
 }
 
 #========================================================================
