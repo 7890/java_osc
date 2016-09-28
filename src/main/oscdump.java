@@ -2,6 +2,7 @@ import java.net.*;
 import com.illposed.osc.*;
 import com.illposed.osc.utility.Debug;
 import java.util.*;
+import javax.sound.midi.ShortMessage;
 
 //tb/160301
 //mimic oscdump from liblo
@@ -15,6 +16,15 @@ class oscdump
 	static boolean debug=true;
 	static boolean debug_port_in_dump	=false;
 	static boolean debug_msg_in_dump	=false;
+
+	//0: java default Date toString()
+	//1: java default Date getTime() long, (millis since 1970)
+	static int date_display_style=0;
+	///localization / timezone?
+
+	//0: hex 0x ...
+	//1: dec 123 ...
+	static int midi_display_style=1;
 
 	static OSCShortcutManager osm=OSCShortcutManager.getInstance();
 
@@ -142,11 +152,55 @@ static class GenericOSCListener implements OSCListener
 					}
 					else if(args.get(i) instanceof Date)
 					{
-						System.out.print(" ("+(Date)args.get(i)+")");
+						if(date_display_style==0)
+						{
+							System.out.print(" ("+(Date)args.get(i)+")");
+						}
+						else if(date_display_style==1)
+						{
+							System.out.print(" "+((Date)args.get(i)).getTime());
+						}
 					}
 					else if(args.get(i) instanceof Character)
 					{
 						System.out.print(" '"+args.get(i)+"'");
+					}
+					else if(args.get(i) instanceof OSCImpulse)
+					{
+						System.out.print(" Infinitum");
+					}
+					else if(args.get(i) instanceof ShortMessage)
+					{
+						ShortMessage m=(ShortMessage)args.get(i);
+						//m.getChannel()
+						//m.getCommand()
+
+						if(midi_display_style==0)
+						{
+							System.out.printf(" [MIDI 0x%02x",m.getStatus());
+							if(m.getLength()>1)
+							{
+								System.out.printf(" 0x%02x",m.getData1());
+							}
+							if(m.getLength()>2)
+							{
+								System.out.printf(" 0x%02x",m.getData2());
+							}
+							System.out.print("]");
+						}
+						if(midi_display_style==1)
+						{
+							System.out.print(" [MIDI "+m.getStatus());
+							if(m.getLength()>1)
+							{
+								System.out.print(" "+m.getData1());
+							}
+							if(m.getLength()>2)
+							{
+								System.out.print(" "+m.getData2());
+							}
+							System.out.print("]");
+						}
 					}
 					else
 					{
