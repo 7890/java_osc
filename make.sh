@@ -8,6 +8,9 @@ build="$DIR"/_build
 archive="$DIR"/archive
 doc="$DIR"/doc
 
+#to run tests: path to local junit jar
+junit_jar=/usr/share/java/junit4-4.11.jar
+
 jsource=1.6
 jtarget=1.6
 
@@ -37,15 +40,15 @@ compile_java_osc()
 	echo "==========================================="
 
 	echo "compiling files in $src/main to directory $build ..."
-
-#	find "$src/main/com/illposed/osc/" -name *.java > "$TMPFILE"
 	find "$src/main/" -name *.java > "$TMPFILE"
 
 	$JAVAC -classpath "$build" -d "$build" @"$TMPFILE"
 
 	echo "compiling files in $src/test to directory $build ..."
-	ls -1 "$src/test/"*.java > "$TMPFILE"
-	$JAVAC -classpath "$build" -d "$build" @"$TMPFILE"
+	find "$src/test/" -name *.java > "$TMPFILE"
+
+	mkdir -p "$build"/test
+	$JAVAC -classpath "$build":/usr/share/java/junit4-4.11.jar -d "$build"/test @"$TMPFILE"
 }
 
 #========================================================================
@@ -59,6 +62,7 @@ compile_msgpack()
 	tar xf msgpack-java_0.8.9.tar.gz
 	cd msgpack-java-0.8.9
 
+	echo "compiling files from "$archive"/msgpack-java_0.8.9.tar.gz to directory $build ..."
 	find "msgpack-core/src/main/" -name *.java > "$TMPFILE"
 
 	$JAVAC -classpath "$build" -d "$build" @"$TMPFILE" 2>/dev/null
@@ -107,19 +111,41 @@ create_javadoc()
 
 	cd "$src/main"
 	javadoc -quiet -private -linksource -sourcetab 2 -d "$doc" \
-		-classpath . -sourcepath . \
+		-classpath "$build" -sourcepath . \
 		com.illposed.osc \
-		com.illposed.osc.utility \
+		com.illposed.osc.utility
 
-	cd "$build"/msgpack-java-0.8.9
-	find "msgpack-core/src/main/" -name *.java > "$TMPFILE"
+	cd "$build"/msgpack-java-0.8.9/msgpack-core/src/main/
+	find . -name *.java > "$TMPFILE"
 	javadoc -quiet -private -sourcetab 2 -d "$doc/msgpack" \
-		-classpath . -sourcepath . \
+		-classpath "$build" -sourcepath . \
 		@"$TMPFILE"
 
 
 	cd "$DIR"
+}
 
+#========================================================================
+run_tests()
+{
+	echo "running JUnit tests (junit.jar needed)"
+	echo "======================================"
+	#java -cp <where tests are>:<where junit.jar is> org.junit.runner.JUnitCore <test class>
+
+	#test existence of junit lib here ...
+	for class in "$build"/test/com/illposed/osc/*Test.class; do
+		echo "TEST $class"
+		cname=`echo "$class"|rev|cut -d"." -f2-|cut -d"/" -f1|rev`
+		java -cp "$build":"$build"/test:"$junit_jar" org.junit.runner.JUnitCore \
+			com.illposed.osc."$cname"
+	done
+
+	for class in "$build"/test/com/illposed/osc/utility/*Test.class; do
+		echo "TEST $class"
+		cname=`echo "$class"|rev|cut -d"." -f2-|cut -d"/" -f1|rev`
+		java -cp "$build":"$build"/test:"$junit_jar" org.junit.runner.JUnitCore \
+			com.illposed.osc.utility."$cname"
+	done
 }
 
 for tool in java javac jar javadoc date; \
@@ -130,6 +156,7 @@ rm -rf "$build"/*
 
 compile_msgpack
 compile_java_osc
+#run_tests
 create_java_osc_jar
 #create_javadoc
 
