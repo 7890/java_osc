@@ -2,7 +2,9 @@ import java.net.*;
 import com.illposed.osc.*;
 import java.util.*;
 import java.io.RandomAccessFile;
-
+import javax.sound.midi.ShortMessage;
+import javax.xml.bind.DatatypeConverter;
+import java.nio.charset.Charset;
 //tb/160301
 //mimic oscsend from liblo
 
@@ -62,12 +64,24 @@ class oscsend
 				}
 				else if(type.equals("b"))
 				{
-					//read from file
-					String filename=args[absolute_arg_index];
-					RandomAccessFile f = new RandomAccessFile(filename, "r");
-					byte[] b = new byte[(int)f.length()];
-					f.readFully(b);
-					msg_args.add(b);
+					String hex_or_filename=args[absolute_arg_index];
+					if(hex_or_filename.startsWith("0x")) //read as string
+					{
+						//cut leading 0x for parsing
+						hex_or_filename=hex_or_filename.substring(2,hex_or_filename.length());
+						//make sure it's an even number of digits (two digits for each byte)
+						if(hex_or_filename.length() % 2 != 0){hex_or_filename+="0";}
+						final byte[] b=DatatypeConverter.parseHexBinary(hex_or_filename);
+						msg_args.add(b);
+					}
+					else //read from file
+					{
+						String filename=args[absolute_arg_index];
+						RandomAccessFile f = new RandomAccessFile(filename, "r");
+						final byte[] b = new byte[(int)f.length()];
+						f.readFully(b);
+						msg_args.add(b);
+					}
 					absolute_arg_index++;
 				}
 				else if(type.equals("c"))
@@ -115,6 +129,30 @@ class oscsend
 					///could use string & format, or take values like db93219d.449ba5e3
 					absolute_arg_index++;
 				}
+				else if(type.equals("m"))
+				{
+					String hex=args[absolute_arg_index];
+					if(!hex.startsWith("0x"))
+					{
+						System.err.println("error: invalid hex string.");
+
+						System.exit(1);
+					}
+					//cut leading 0x for parsing
+					hex=hex.substring(2,hex.length());
+					//make sure it's an even number of digits (two digits for each byte)
+					if(hex.length() % 2 != 0){hex+="0";}
+
+					final byte[] b=DatatypeConverter.parseHexBinary(hex);
+					int len=b.length;
+					if(len==1)      { msg_args.add(new ShortMessage( (int)(b[0] & 0xff), 0,                  0 )); }
+					else if(len==2) { msg_args.add(new ShortMessage( (int)(b[0] & 0xff), (int)(b[1] & 0xff), 0 )); }
+					else if(len>2) { msg_args.add(new ShortMessage( (int)(b[0] & 0xff), (int)(b[1] & 0xff), (int)(b[2] & 0xff)));}
+					absolute_arg_index++;
+				}
+				else if(type.equals("[") || type.equals("]"))
+				{///
+				}
 				else
 				{
 					System.err.println("type '"+type+"' not supported!");
@@ -158,15 +196,20 @@ class oscsend
 			System.err.println("    d - 64bit (double) floating point number");
 			System.err.println("    s - string");
 			System.err.println("    b - blob (binary / raw bytes)");
-			System.err.println("        path to file, used as blob content");
+			System.err.println("        hex notation 0x..(...), i.e. 0xffff");
+			System.err.println("        OR path to file, used as blob content");
 			System.err.println("    c - char");
-			System.err.println("        single character or hex number format '0x00'");
+			System.err.println("        single character or hex byte format '0x00'");
 			System.err.println("    N - NIL           (no value required)");
 			System.err.println("    T - TRUE          (no value required)");
 			System.err.println("    F - FALSE         (no value required)");
 			System.err.println("    I - INFINITUM     (no value required)");
+			System.err.println("    m - MIDI 1-3 bytes forming a valid message");
+			System.err.println("        hex notation 0x..(...), i.e. 0xfa or 0xae7f02");
+			System.err.println("        missing bytes will be compensated with 00");
+			System.err.println("        superfluous bytes are ignored.");
 			System.err.println("    t - timestamp");
-			System.err.println("        literal 'NOW' or type 'h' (unix time millis)\n");
+			System.err.println("        literal 'NOW' or long (type 'h', unix time millis)\n");
 
 			System.err.println("-the minimal valid message must only have an address set.");
 			System.err.println("-a message can contain a string (typetags) defining the types to transmit.");
