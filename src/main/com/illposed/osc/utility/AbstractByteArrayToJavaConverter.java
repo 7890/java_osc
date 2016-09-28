@@ -11,6 +11,7 @@ package com.illposed.osc.utility;
 
 import com.illposed.osc.OSCPacket;
 import com.illposed.osc.OSCBundle;
+import com.illposed.osc.OSCMessage;
 
 import java.nio.charset.Charset;
 
@@ -70,7 +71,7 @@ public abstract class AbstractByteArrayToJavaConverter implements ByteArrayToJav
 
 	/**
 	 * Converts a byte array into an {@link OSCPacket}
-	 * (either an {@link OSCMessage}, {@link OSCPackMessage} or {@link OSCBundle}).
+	 * (either an {@link OSCMessage} or a {@link OSCBundle}).
 	 * @param bytes the storage containing the raw OSC packet
 	 * @param bytesLength indicates how many bytes the package consists of (<code>&lt;= bytes.length</code>)
 	 * @return the successfully parsed OSC packet; in case of a problem,
