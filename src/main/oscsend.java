@@ -213,7 +213,7 @@ class oscsend
 
 			System.err.println("-the minimal valid message must only have an address set.");
 			System.err.println("-a message can contain a string (typetags) defining the types to transmit.");
-			System.err.println("-the typetags are followed by 0 or more values corresponding to the typetags.");
+			System.err.println("-the typetags are followed by 0 or more values corresponding to the typetags.\n");
 
 			System.err.println("to send a bundle, add the next message starting with the address right after the last message.\n");
 
