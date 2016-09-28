@@ -11,6 +11,7 @@ package com.illposed.osc.utility;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
+import javax.sound.midi.ShortMessage;
 
 public interface JavaToByteArrayConverter {
 	public Charset getCharset();
@@ -24,6 +25,7 @@ public interface JavaToByteArrayConverter {
 	public void write(Integer anInt);
 	public void write(Long aLong);
 	public void write(Date timestamp);
+	public void write(ShortMessage midievent);
 	public void write(String aString);
 	public void write(Character aChar);
 	public void write(char aChar);

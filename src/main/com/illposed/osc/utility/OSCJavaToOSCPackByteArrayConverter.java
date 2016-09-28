@@ -18,7 +18,7 @@ import org.msgpack.core.buffer.OutputStreamBufferOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
-
+import javax.sound.midi.ShortMessage;
 
 /*
 class to help writing OSCPack byte stream:
@@ -104,6 +104,15 @@ public class OSCJavaToOSCPackByteArrayConverter extends AbstractJavaToByteArrayC
 		} catch (IOException e) {throwEx("",e);}
 	}
 
+	public void write(ShortMessage midievent) {
+		//write bytes (>0, <=3)
+		try {
+			packer.packBinaryHeader(midievent.getLength());
+			packer.writePayload(midievent.getMessage());
+		} catch (IOException e) {throwEx("",e);}
+
+	}
+
 	public void write(String aString) {
 		try {
 			final byte[] stringBytes = aString.getBytes(charset);
@@ -115,7 +124,6 @@ public class OSCJavaToOSCPackByteArrayConverter extends AbstractJavaToByteArrayC
 	}
 
 	public void write(Character aChar) {
-
 		write(aChar.charValue());
 	}
 

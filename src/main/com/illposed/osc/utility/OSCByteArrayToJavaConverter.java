@@ -18,6 +18,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.sound.midi.ShortMessage;
 
 /**
  * Utility class to convert a byte array,
@@ -282,6 +283,8 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 				return Boolean.FALSE;
 			case 'I' :
 				return OSCImpulse.INSTANCE;
+			case 'm' :
+				return readMidi(rawInput);
 			case 't' :
 				return readTimeTag(rawInput);
 			default:
@@ -384,6 +387,24 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 	private Date readTimeTag(final Input rawInput) {
 		long time=readLong(rawInput);
 		return NTPTime.readTimeTag(time);
+	}
+
+	//
+	private ShortMessage readMidi(final Input rawInput) {
+
+		byte b1=rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
+		byte b2=rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
+		byte b3=rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
+		int status=(int) (b1 & 0xff);
+		int data1=(int) (b2 & 0xff);
+		int data2=(int) (b3 & 0xff);
+
+		//skip last byte
+		rawInput.addToStreamPosition(1);
+//		System.err.println("status "+status+" data1 "+data1+" data2 "+data2);
+		try {
+			return new ShortMessage(status,data1,data2);
+		}catch(Exception e){throw new IllegalArgumentException("could not create MIDI message.",e);}
 	}
 
 	/**

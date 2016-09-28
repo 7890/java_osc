@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
+import javax.sound.midi.ShortMessage;
 
 /**
  * AbstractJavaToByteArrayConverter is an abstract helper class that translates
@@ -111,6 +112,8 @@ public abstract class AbstractJavaToByteArrayConverter implements JavaToByteArra
 			write((Long) anObject);
 		} else if (anObject instanceof Date) {
 			write((Date) anObject);
+		} else if (anObject instanceof ShortMessage) {
+			write((ShortMessage) anObject);
 		} else if (!isNoDataObject(anObject)) {
 			throw new UnsupportedOperationException("Do not know how to write an object of class: "
 					+ anObject.getClass());
@@ -161,6 +164,9 @@ public abstract class AbstractJavaToByteArrayConverter implements JavaToByteArra
 	 * @param timestamp the timestamp to be written
 	 */
 	public abstract void write(Date timestamp);
+
+	//
+	public abstract void write(ShortMessage midievent);
 
 	/**
 	 * Write a string into the byte stream.

@@ -14,7 +14,7 @@ import com.illposed.osc.OSCImpulse;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-
+import javax.sound.midi.ShortMessage;
 
 public class Tagger {
 
@@ -40,6 +40,8 @@ public class Tagger {
 			sb.append("c");
 		} else if (OSCImpulse.class.equals(typeClass)) {
 			sb.append("I");
+		} else if (ShortMessage.class.equals(typeClass)) {
+			sb.append("m");
 		} else {
 			throw new UnsupportedOperationException("Do not know the OSC type for the java class: "
 					+ typeClass);

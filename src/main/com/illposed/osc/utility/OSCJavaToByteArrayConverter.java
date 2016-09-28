@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
+import javax.sound.midi.ShortMessage;
 
 /**
  * OSCJavaToByteArrayConverter is a helper class that translates
@@ -118,6 +119,18 @@ public class OSCJavaToByteArrayConverter extends AbstractJavaToByteArrayConverte
 	 */
 	public void write(Date timestamp) {
 		writeInteger64ToByteArray(NTPTime.javaToNtpTimeStamp(timestamp.getTime()));
+	}
+
+	//
+	public void write(ShortMessage midievent) {
+		//write bytes (>0, <=3)
+		byte[] b=midievent.getMessage();
+		for(int i=0;i<midievent.getLength();i++)
+		{
+			stream.write(b[i]);
+		}
+		//pad to 4 bytes
+		alignStream();
 	}
 
 	/**

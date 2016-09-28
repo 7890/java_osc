@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import javax.sound.midi.ShortMessage;
 
 /**
  * Utility class to convert a byte array,
@@ -208,11 +209,10 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 				case 's' :
 					return up.unpackString();
 				case 'b' :
-					///return readBlob(rawInput);
-					int len=up.unpackBinaryHeader();
-					final byte[] b=new byte[len];
-					up.readPayload(b);
-					return b;
+					int len1=up.unpackBinaryHeader();
+					final byte[] b1=new byte[len1];
+					up.readPayload(b1);
+					return b1;
 				case 'c' :
 					return (char)up.unpackByte();
 				case 'N' :
@@ -223,6 +223,13 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 					return Boolean.FALSE;
 				case 'I' :
 					return OSCImpulse.INSTANCE;
+				case 'm' :
+					int len2=up.unpackBinaryHeader();
+					final byte[] b2=new byte[len2];
+					up.readPayload(b2);
+					if(len2==1) {      return new ShortMessage( (int)(b2[0] & 0xff), 0,                   0 ); }
+					else if(len2==2) { return new ShortMessage( (int)(b2[0] & 0xff), (int)(b2[1] & 0xff), 0 ); }
+					else if(len2==3) { return new ShortMessage( (int)(b2[0] & 0xff), (int)(b2[1] & 0xff), (int)(b2[2] & 0xff));}
 				case 't' :
 					return NTPTime.readTimeTag(up.unpackLong());
 				default:
