@@ -11,7 +11,9 @@ package com.illposed.osc;
 
 import com.illposed.osc.utility.JavaToByteArrayConverter;
 import com.illposed.osc.utility.OSCJavaToByteArrayConverter;
+import com.illposed.osc.utility.ByteArrayToJavaConverter;
 import com.illposed.osc.utility.OSCByteArrayToJavaConverter;
+import com.illposed.osc.utility.OSCPackByteArrayToJavaConverter;
 import com.illposed.osc.utility.Tagger;
 
 import java.util.ArrayList;
@@ -83,7 +85,17 @@ public class OSCMessage extends AbstractOSCPacket {
 	public OSCMessage(final String address, final String typetags, final byte[] blobBytes) {
 		this(address, null);
 		setTypetagString(typetags);
-		OSCByteArrayToJavaConverter conv=new OSCByteArrayToJavaConverter();
+
+		//test if packed blob to choose converter
+		final ByteArrayToJavaConverter conv;
+		if(blobBytes.length > 0 && blobBytes[0]=='!')
+		{
+			conv=new OSCPackByteArrayToJavaConverter();
+		}
+		else
+		{
+			conv=new OSCByteArrayToJavaConverter();
+		}
 		addArguments(conv.convertArguments(blobBytes, typetags));
 	}
 
