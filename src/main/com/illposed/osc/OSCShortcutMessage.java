@@ -44,7 +44,8 @@ public class OSCShortcutMessage extends OSCMessage {
 			setAddress("/@");
 
 			//create blob from arguments
-			JavaToByteArrayConverter stream_all_args=new OSCJavaToByteArrayConverter();
+			JavaToByteArrayConverter stream_all_args=getConverter();
+
 			computePlainArgumentsByteArray(stream_all_args);
 			byte[] all_args_in_one_blob=stream_all_args.toByteArray();
 
