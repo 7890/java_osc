@@ -11,6 +11,7 @@ package com.illposed.osc.utility;
 import com.illposed.osc.OSCPacket;
 
 import java.nio.charset.Charset;
+import java.util.List;
 
 public interface ByteArrayToJavaConverter {
 	//methods that all implementing classes of ByteArrayToJavaConverter need to provide
@@ -18,4 +19,5 @@ public interface ByteArrayToJavaConverter {
 	public void setCharset(Charset charset);
 	public OSCPacket convert(byte[] bytes, int bytesLength);
 	public OSCPacket convert(byte[] bytes, int bytesLength, String remoteHost, int remotePort);
+	public List<Object> convertArguments(byte[] blob, String typetags);
 }

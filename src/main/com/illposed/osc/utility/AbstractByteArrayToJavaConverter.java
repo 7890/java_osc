@@ -81,5 +81,8 @@ public abstract class AbstractByteArrayToJavaConverter implements ByteArrayToJav
 
 	//have a way to know where the packet came from
 	public abstract OSCPacket convert(byte[] bytes, int bytesLength, String remoteHost, int remotePort);
+
+	//create a list of java objects from a blob (packed or not) from given typetags
+	public abstract List<Object> convertArguments(byte[] blob, String typetags);
 } //end abstract class AbstractByteArrayToJavaConverter
 //EOF
