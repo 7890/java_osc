@@ -17,9 +17,10 @@ class oscdump
 	static boolean debug_port_in_dump	=false;
 	static boolean debug_msg_in_dump	=false;
 
-	//0: java default Date toString()
-	//1: java default Date getTime() long, (millis since 1970)
-	static int date_display_style=0;
+	//0: long, (millis since 1970)
+	//1: java default Date toString() local timezome
+	//2  date/time string, GMT / UTC timezone, format like 2016-03-06_07:53:13.411
+	static int date_display_style=1;
 	///localization / timezone?
 
 	//0: hex 0x ...
@@ -33,7 +34,7 @@ class oscdump
 //		System.err.println("oscdump");
 
 		//test add shortcut
-		OSCShortcut os=osm.add(new OSCShortcut("/foo/bar","sfdhiTNctis",1234));
+		osm.add(new OSCShortcut("/foo/bar","sfdhiTNctismi",1233));
 
 		//parse arg: port
 		//minimum #args: 1
@@ -131,6 +132,8 @@ static class GenericOSCListener implements OSCListener
 		int argsSize=args.size();
 		//println("osc msg received: "+path+" ("+argsSize+" args)");
 
+		DTime.setTimeZoneUTC();
+
 		try
 		{
 			System.out.print(portIn.getSuccessfullyProcessedCount()+") "
@@ -152,13 +155,21 @@ static class GenericOSCListener implements OSCListener
 					}
 					else if(args.get(i) instanceof Date)
 					{
+						Date date=(Date)args.get(i);
 						if(date_display_style==0)
 						{
-							System.out.print(" ("+(Date)args.get(i)+")");
+							//getTime(): Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT (UTC)
+							System.out.print(" "+date.getTime());
 						}
 						else if(date_display_style==1)
 						{
-							System.out.print(" "+((Date)args.get(i)).getTime());
+							//prints the date using local (default) timezone
+							System.out.print(" ("+date+")");
+						}
+
+						else if(date_display_style==2)
+						{
+							System.out.println(" "+DTime.dateTimeFromMillis(date.getTime()));
 						}
 					}
 					else if(args.get(i) instanceof Character)
