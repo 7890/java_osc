@@ -132,6 +132,39 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 			}catch(Exception e){/*e.printStackTrace();*/break;}
 		}
 		return bundle;
+	}//end convertBundle()
+
+	//
+	public List<Object> convertArguments(final MessageUnpacker up, final CharSequence types)
+	{
+		final List<Object> args=new ArrayList<Object>();
+
+		for (int ti = 0; ti < types.length(); ++ti) {
+			if ('[' == types.charAt(ti)) {
+				// we're looking at an array -- read it in
+				args.add(readArray(up, types, ++ti));
+				// then increment i to the end of the array
+				while (types.charAt(ti) != ']') {
+					ti++;
+				}
+			} else {
+				args.add(readArgument(up, types.charAt(ti)));
+			}
+		}
+		return args;
+	}
+
+	//wrapper
+	public List<Object> convertArguments(final byte[] bytes, final String types)
+	{
+		if(bytes.length>0 && bytes[0]!='!')
+		{
+			//not a OSCPack byte array!
+			throw new IllegalArgumentException("OSCPack byte stream doesn't start with '!'");
+		}
+		//skip "!"
+		MessageUnpacker unpacker= MessagePack.newDefaultUnpacker(bytes, 1, bytes.length-1);
+		return convertArguments(unpacker,types);
 	}
 
 	/**
@@ -141,17 +174,13 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 	 */
 	private OSCMessage convertMessage(final MessageUnpacker up) {
 
-		final OSCMessage message = new OSCMessage(); ////ev. return OSCPackMessage
-
+		final OSCMessage message = new OSCMessage();
 		try
 		{
 			message.setAddress(up.unpackString());
-
 			message.setRemoteHost(remoteHost);
 			message.setRemotePort(remotePort);
-
 			String typestmp=up.unpackString();
-
 			final CharSequence types;
 			if(typestmp!=null && !typestmp.equals(""))
 			{
@@ -161,24 +190,8 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 			{
 				types=NO_ARGUMENT_TYPES;
 			}
-
 			message.setTypetagString(""+types);
-
-			for (int ti = 0; ti < types.length(); ++ti) {
-				if ('[' == types.charAt(ti)) {
-					// we're looking at an array -- read it in
-
-					message.addArgument(readArray(up, types, ++ti));
-
-					// then increment i to the end of the array
-					while (types.charAt(ti) != ']') {
-						ti++;
-					}
-				} else {
-
-					message.addArgument(readArgument(up, types.charAt(ti)));
-				}
-			}
+			message.addArguments(convertArguments(up,types));
 			return message;
 		}
 		catch (Exception e)
