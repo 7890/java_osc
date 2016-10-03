@@ -133,13 +133,29 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 
 		while (rawInput.getStreamPosition() < rawInput.getBytesLength()) {
 			// recursively read through the stream and convert packets you find
+//			Debug.hexdump(rawInput.getBytes(),rawInput.getBytesLength());
+
+			//align to 4 bytes boundary. bundle did align (packed) blobs
+			int mod=rawInput.getStreamPosition() % 4;
+			if(mod!=0)
+			{
+				rawInput.addToStreamPosition(4-mod);
+				//re-evaluate pos < length
+				continue;
+			}
+
 			final int packetLength = readInteger(rawInput); //byte count of (that) one message item inside blob
 			if (packetLength == 0) {
-				throw new IllegalArgumentException("Packet length may not be 0");
-			} else if ((packetLength % 4) != 0) {
+				///throw new IllegalArgumentException("Packet length may not be 0");
+				break;
+			}
+/*
+			///packed bundles or messages might be not a multiple of 4
+			else if ((packetLength % 4) != 0) {
 				throw new IllegalArgumentException("Packet length has to be a multiple of 4, is:"
 						+ packetLength);
 			}
+*/
 			final byte[] packetBytes = new byte[packetLength];
 			System.arraycopy(rawInput.getBytes(), rawInput.getStreamPosition(), packetBytes, 0, packetLength);
 			rawInput.addToStreamPosition(packetLength);
@@ -158,7 +174,7 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 			bundle.addPacket(packet);
 		}
 		return bundle;
-	}
+	}//end convertBundle()
 
 	//
 	public List<Object> convertArguments(final Input rawInput, final CharSequence types)
