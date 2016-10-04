@@ -12,6 +12,9 @@ class oscsend
 {
 	static int absolute_arg_index=0;
 
+	//for bundle
+	static boolean pack_bundle=false;
+
 	public static OSCMessage createMessageFromArgs(String[] args) throws Exception
 	{
 		String path=args[absolute_arg_index];
@@ -20,6 +23,7 @@ class oscsend
 		String typetags="";
 		Vector msg_args=new Vector();
 
+		//per message
 		boolean pack=false;
 
 		if(path.charAt(0)=='!')
@@ -33,7 +37,7 @@ class oscsend
 			typetags=args[absolute_arg_index].trim();
 
 			//if what could be the typetag looks like an address, return here
-			if(typetags.charAt(0)=='/')
+			if(typetags.charAt(0)=='/' || typetags.charAt(0)=='!')
 			{
 				//"path-only" message
 				if(pack)
@@ -267,7 +271,15 @@ class oscsend
 			absolute_arg_index+=2;
 
 			OSCMessage message=null;
-			OSCBundle bundle=new OSCBundle();
+			OSCBundle bundle;
+			if(pack_bundle)
+			{
+				bundle=new OSCPackBundle();
+			}
+			else
+			{
+				bundle=new OSCBundle();
+			}
 			int message_count=0;
 			while(absolute_arg_index<args.length)
 			{
