@@ -25,72 +25,22 @@ public class NTPTime
 	protected static final long MSB_1_BASE_TIME = -2208988800000L;
 
 	//long contains ntp 64bit time
-	public static Date readTimeTag(long t) {
-		try
+	public static Date readTimeTag(long ntpTime) {
+/*
+		ByteBuffer buffer = ByteBuffer.allocate(8);//Long.BYTES);
+		buffer.order(ByteOrder.BIG_ENDIAN);
+		buffer.putLong(ntpTime);
+		Debug.hexdump(buffer.array());
+*/
+		System.err.println("readTimeTag(): "+ntpTime+" "+getSeconds(ntpTime)+" "+getFraction(ntpTime)+" "+toString(ntpTime));
+
+		if(ntpTime==1) //too simple?
 		{
-			ByteBuffer buffer = ByteBuffer.allocate(8);//Long.BYTES);
-			buffer.order(ByteOrder.BIG_ENDIAN);
-			buffer.putLong(t);
-			byte[] bytes=buffer.array();
-			int index=0;
-
-			final byte[] secondBytes = new byte[8];
-			final byte[] fractionBytes = new byte[8];
-			for (int bi = 0; bi < 4; bi++) {
-				// clear the higher order 4 bytes
-				secondBytes[bi] = 0;
-				fractionBytes[bi] = 0;
-			}
-			// while reading in the seconds & fraction, check if
-			// this timetag has immediate semantics
-			boolean isImmediate = true;
-			for (int bi = 4; bi < 8; bi++) {
-				secondBytes[bi] = bytes[index]; index++;
-
-				if (secondBytes[bi] > 0) {
-					isImmediate = false;
-				}
-			}
-			for (int bi = 4; bi < 8; bi++) {
-				fractionBytes[bi] = bytes[index]; index++;
-
-				if (bi < 7) {
-					if (fractionBytes[bi] > 0) {
-						isImmediate = false;
-					}
-				} else {
-					if (fractionBytes[bi] > 1) {
-						isImmediate = false;
-					}
-				}
-			}
-
-			if (isImmediate) {
-
-				return OSCBundle.TIMESTAMP_IMMEDIATE;
-			}
-
-			final long secsSince1900 = new BigInteger(secondBytes).longValue();
-			long secsSince1970 = secsSince1900 - OSCBundle.SECONDS_FROM_1900_TO_1970;
-
-			// no point maintaining times in the distant past
-			if (secsSince1970 < 0) {
-				secsSince1970 = 0;
-			}
-			long fraction = new BigInteger(fractionBytes).longValue();
-
-			// this line was cribbed from jakarta commons-net's NTP TimeStamp code
-			fraction = (fraction * 1000) / 0x100000000L;
-
-			// I do not know where, but I'm losing 1ms somewhere...
-			fraction = (fraction > 0) ? fraction + 1 : 0;
-			final long millisecs = (secsSince1970 * 1000) + fraction;
-			return new Date(millisecs);
+			System.err.println("readTimeTag(): IMMEDIATE");
+			return OSCBundle.TIMESTAMP_IMMEDIATE;
 		}
-		catch(Exception e)
-		{e.printStackTrace();} ///ev. throw runtime exception
-		return null; //new Date();///
-	}//end readTimeTag()
+		return new Date(getTime(ntpTime));
+	}
 
 	/**
 	 * Converts a Java time-stamp to a 64-bit NTP time representation.
@@ -103,6 +53,7 @@ public class NTPTime
 	 * @return NTP time-stamp representation of the Java time value.
 	 */
 	public static long javaToNtpTimeStamp(long javaTime) {
+
 		final boolean useBase1 = javaTime < MSB_0_BASE_TIME; // time < Feb-2036
 		final long baseTime;
 		if (useBase1) {
@@ -116,11 +67,134 @@ public class NTPTime
 		final long fraction = ((baseTime % 1000) * 0x100000000L) / 1000;
 
 		if (useBase1) {
-			seconds |= 0x80000000L; // set high-order bit if msb1baseTime 1900 used
+			seconds |= 0x80000000L; // set high-order bit if MSB_1_BASE_TIME 1900 used
 		}
 
 		final long ntpTime = seconds << 32 | fraction;
 
 		return ntpTime;
+	}
+
+	///========from org.apache.commons.net.ntp.TimeStamp.java
+	/***
+	 * Convert 64-bit NTP timestamp to Java standard time.
+	 *
+	 * Note that java time (milliseconds) by definition has less precision
+	 * then NTP time (picoseconds) so converting NTP timestamp to java time and back
+	 * to NTP timestamp loses precision. For example, Tue, Dec 17 2002 09:07:24.810 EST
+	 * is represented by a single Java-based time value of f22cd1fc8a, but its
+	 * NTP equivalent are all values ranging from c1a9ae1c.cf5c28f5 to c1a9ae1c.cf9db22c.
+	 *
+	 * @param ntpTime
+	 * @return the number of milliseconds since January 1, 1970, 00:00:00 GMT
+	 * represented by this NTP timestamp value.
+	 */
+	public static long getTime(long ntpTime)
+	{
+		long seconds = (ntpTime >>> 32) & 0xffffffffL;	 // high-order 32-bits
+		long fraction = ntpTime & 0xffffffffL;			 // low-order 32-bits
+
+		// Use round-off on fractional part to preserve going to lower precision
+		fraction = Math.round(1000D * fraction / 0x100000000L);
+
+		/*
+		 * If the most significant bit (MSB) on the seconds field is set we use
+		 * a different time base. The following text is a quote from RFC-2030 (SNTP v4):
+		 *
+		 *  If bit 0 is set, the UTC time is in the range 1968-2036 and UTC time
+		 *  is reckoned from 0h 0m 0s UTC on 1 January 1900. If bit 0 is not set,
+		 *  the time is in the range 2036-2104 and UTC time is reckoned from
+		 *  6h 28m 16s UTC on 7 February 2036.
+		 */
+		long msb = seconds & 0x80000000L;
+		if (msb == 0) {
+			// use base: 7-Feb-2036 @ 06:28:16 UTC
+			return MSB_0_BASE_TIME + (seconds * 1000) + fraction;
+		} else {
+			// use base: 1-Jan-1900 @ 01:00:00 UTC
+			return MSB_1_BASE_TIME + (seconds * 1000) + fraction;
+		}
+	}
+
+	/***
+	 * Returns high-order 32-bits representing the seconds of this NTP timestamp.
+	 *
+	 * @return seconds represented by this NTP timestamp.
+	 */
+	public static long getSeconds(long ntpTime)
+	{
+		return (ntpTime >>> 32) & 0xffffffffL;
+	}
+
+	/***
+	 * Returns low-order 32-bits representing the fractional seconds.
+	 *
+	 * @return fractional seconds represented by this NTP timestamp.
+	 */
+	public static long getFraction(long ntpTime)
+	{
+		return ntpTime & 0xffffffffL;
+	}
+
+	/***
+	 * Convert NTP timestamp hexstring (e.g. "c1a089bd.fc904f6d") to the NTP
+	 * 64-bit unsigned fixed-point number.
+	 *
+	 * @return NTP 64-bit timestamp value.
+	 * @throws NumberFormatException - if the string does not contain a parsable timestamp.
+	 */
+	public static long decodeNtpHexString(String s)
+			throws NumberFormatException
+	{
+		if (s == null) {
+			throw new NumberFormatException("null");
+		}
+		int ind = s.indexOf('.');
+		if (ind == -1) {
+			if (s.length() == 0) {
+				return 0;
+			}
+			return Long.parseLong(s, 16) << 32; // no decimal
+		}
+
+		return Long.parseLong(s.substring(0, ind), 16) << 32 |
+				Long.parseLong(s.substring(ind + 1), 16);
+	}
+
+	/***
+	 * Converts 64-bit NTP timestamp value to a <code>String</code>.
+	 * The NTP timestamp value is represented as hex string with
+	 * seconds separated by fractional seconds by a decimal point;
+	 * e.g. c1a089bd.fc904f6d <=> Tue, Dec 10 2002 10:41:49.986
+	 *
+	 * @return NTP timestamp 64-bit long value as hex string with seconds
+	 * separated by fractional seconds.
+	 */
+	public static String toString(long ntpTime)
+	{
+		StringBuilder buf = new StringBuilder();
+		// high-order second bits (32..63) as hexstring
+		appendHexString(buf, (ntpTime >>> 32) & 0xffffffffL);
+
+		// low-order fractional seconds bits (0..31) as hexstring
+		buf.append('.');
+		appendHexString(buf, ntpTime & 0xffffffffL);
+
+		return buf.toString();
+	}
+
+	/***
+	 * Left-pad 8-character hex string with 0's
+	 *
+	 * @param buf - StringBuilder which is appended with leading 0's.
+	 * @param l - a long.
+	 */
+	private static void appendHexString(StringBuilder buf, long l)
+	{
+		String s = Long.toHexString(l);
+		for (int i = s.length(); i < 8; i++) {
+			buf.append('0');
+		}
+		buf.append(s);
 	}
 } //end class NTPTime
