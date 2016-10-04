@@ -366,12 +366,21 @@ public class OSCMessageTest {
 	@Test
 	public void testArgumentCollectionsMixed() {
 		final List<Object> args = new ArrayList<Object>(5);
-		final Collection<Integer> singleType = new HashSet<Integer>();
+		final Collection<Integer> singleType = new ArrayList<Integer>(); ///HashSet<Integer>();
+		/*
+		from https://docs.oracle.com/javase/7/docs/api/java/util/HashSet.html:
+		This class implements the Set interface, backed by a hash table (actually a HashMap instance). 
+		It makes no guarantees as to the iteration order of the set; in particular, it does not guarantee 
+		that the order will remain constant over time.
+
+		-> that's why sometimes the contents of singleType were wrong / different (on different pcs)!
+		-> if order matters, a HashSet should therefore probably not be used (?)
+		*/
 		singleType.add(-1);
 		singleType.add(0);
 		singleType.add(1);
 		singleType.add(2);
-		singleType.add(-1); // double entry; discarded becasue we have a Set
+///		singleType.add(-1); // double entry; discarded becasue we have a Set (we have not :|)
 		singleType.add(99);
 		final Collection<Object> allTypes = new LinkedList<Object>();
 		allTypes.add(null);
