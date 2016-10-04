@@ -96,9 +96,8 @@ public class OSCShortcutManager {
 
 	public static boolean exists(OSCShortcut o)
 	{
-		//assuming addition was done for both data structures it's enough to check one of them
-		if(shortcut_ids.get(o.getID())==null) {return false;}
-		return true;
+		//this prevents to add equal symbols with a different id
+		return exists(o.getID()) || exists(o.getSymbol());
 	}
 
 	public static boolean exists(String symbol)
