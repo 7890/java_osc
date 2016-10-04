@@ -176,7 +176,7 @@ static class GenericOSCListener implements OSCListener
 						}
 						else if(date_display_style==2)
 						{
-							System.out.println(" "+DTime.dateTimeFromMillis(date.getTime()));
+							System.out.print(" "+DTime.dateTimeFromMillis(date.getTime()));
 						}
 					}
 					else if(args.get(i) instanceof Character)
