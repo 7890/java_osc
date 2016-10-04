@@ -66,7 +66,9 @@ public class Test
 
 		//add shortcut with id 1233 for messages with this address and typetags
 		//OSCShortcut os=
-		osm.add(new OSCShortcut("/foo/bar","sfdhiTNctismi",1233));
+		//osm.add(new OSCShortcut("/foo/bar","sfdhiTNctismi",1233));
+		int cnt=osm.load("./osc_shortcuts.txt");
+		System.err.println(cnt+" shortcuts loaded from file.");
 
 		OSCMessage m1=new OSCPackMessage(address,msg_args).addArguments(ar).add(msg_no++);
 		addAndDump(m1);

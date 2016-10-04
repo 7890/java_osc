@@ -1,0 +1,15 @@
+# osc shortcuts file (see OSCShortcutManager.java)
+#
+# line format:
+#
+# /.shortcut iss id address typetags
+#
+# if there are no typetags, put "" or ''
+#
+# equal messages are added only once
+
+/.shortcut iss 0 / ""
+/.shortcut iss 0 / ""
+/.shortcut iss 1233 /foo/bar sfdhiTNctismi
+
+#eof

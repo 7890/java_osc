@@ -14,8 +14,11 @@ class oscdump
 	static boolean shutdown_requested=false;
 
 	static boolean debug=true;
-	static boolean debug_port_in_dump	=false;
+	static boolean debug_port_in_dump	=true;
 	static boolean debug_msg_in_dump	=false;
+
+	static String shortcuts_file="./osc_shortcuts.txt";
+	static boolean shortcuts_enabled=true;
 
 	//0: long, (millis since 1970)
 	//1: java default Date toString() local timezome
@@ -33,8 +36,13 @@ class oscdump
 	{
 //		System.err.println("oscdump");
 
-		//test add shortcut
-		osm.add(new OSCShortcut("/foo/bar","sfdhiTNctismi",1233));
+		if(shortcuts_enabled)
+		{
+			//test add shortcut
+			//osm.add(new OSCShortcut("/foo/bar","sfdhiTNctismi",1233));
+			int cnt=osm.load(shortcuts_file);
+			System.err.println(cnt+" shortcuts loaded from file.");
+		}
 
 		//parse arg: port
 		//minimum #args: 1
