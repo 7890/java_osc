@@ -10,6 +10,8 @@ package com.illposed.osc;
 
 import java.util.HashMap;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 public class OSCShortcutManager {
 
@@ -32,6 +34,55 @@ public class OSCShortcutManager {
 			instance = new OSCShortcutManager();
 		}
 		return instance;
+	}
+
+	public static int load(String file_uri)
+	{
+		//    0          1   2    3         4
+		//    /.shortcut iss <id> <address> <typetags>
+
+		int count_success=0;
+
+		try {
+			BufferedReader buffered_reader=new BufferedReader(new FileReader(file_uri));
+
+			String line;
+			while ((line = buffered_reader.readLine()) != null)
+			{
+//				System.err.println("input line: '"+line+"'");
+				if(!line.startsWith("/.shortcut iss "))
+				{
+//					System.err.println("/!\\ invalid format for shortcut, line: '"+line+"'");
+					continue;
+				}
+				else
+				{
+					String[] tokens = line.split(" "); //split space
+//					System.err.println("# line tokens: "+tokens.length);
+					if(tokens.length != 5)
+					{
+						System.err.println("/!\\ invalid format for shortcut, line: '"+line+"'");
+						continue;
+					}
+					else
+					{
+						String tt=tokens[4];
+						if(tokens[4].equals("\"\"") || tokens[4].equals("''"))
+						{
+							tt="";
+						}
+//						System.err.println( Integer.parseInt(tokens[2])+" "+tokens[3]+" "+tt);
+						if(null!=
+							add(new OSCShortcut(tokens[3] ,tt, Integer.parseInt(tokens[2]))))
+						{
+							count_success++;
+						}
+					}
+				}
+			}//end while
+		}
+		catch(Exception e){e.printStackTrace();}
+		return count_success;
 	}
 
 	public static int size()
