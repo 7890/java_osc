@@ -61,6 +61,7 @@ compile_msgpack()
 	cp "$archive"/msgpack-java_0.8.9.tar.gz "$build"
 	cd "$build"
 	tar xf msgpack-java_0.8.9.tar.gz
+	rm msgpack-java_0.8.9.tar.gz
 	cd msgpack-java-0.8.9
 
 	echo "compiling files from "$archive"/msgpack-java_0.8.9.tar.gz to directory $build ..."
@@ -158,7 +159,7 @@ rm -rf "$build"/*
 compile_msgpack
 compile_java_osc
 #run_tests
-create_java_osc_jar
+#create_java_osc_jar
 #create_javadoc
 
 echo ""
