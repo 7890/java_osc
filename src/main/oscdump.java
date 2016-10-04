@@ -19,8 +19,8 @@ class oscdump
 
 	//0: long, (millis since 1970)
 	//1: java default Date toString() local timezome
-	//2  date/time string, GMT / UTC timezone, format like 2016-03-06_07:53:13.411
-	static int date_display_style=1;
+	//2: date/time string, GMT / UTC timezone, format like 2016-03-06_07:53:13.411
+	static int date_display_style=2;
 	///localization / timezone?
 
 	//0: hex 0x ...
@@ -166,7 +166,6 @@ static class GenericOSCListener implements OSCListener
 							//prints the date using local (default) timezone
 							System.out.print(" ("+date+")");
 						}
-
 						else if(date_display_style==2)
 						{
 							System.out.println(" "+DTime.dateTimeFromMillis(date.getTime()));
