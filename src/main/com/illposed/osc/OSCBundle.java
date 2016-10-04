@@ -46,7 +46,15 @@ public class OSCBundle extends AbstractOSCPacket {
 	 * The Java representation of an OSC timestamp with the semantics of
 	 * "immediately".
 	 */
-	public static final Date TIMESTAMP_IMMEDIATE = new Date(0);
+	//the precision is nearest millisecond
+	public static final Date TIMESTAMP_IMMEDIATE = new Date(0); ///
+
+	//convention on how to encode IMMEDIATE to indicate non-delayed processing
+	//#define LO_TT_IMMEDIATE ((lo_timetag){0U,1U})   uint32_t sec; uint32_t frac;
+	//from the osc spec:
+	//The time tag value consisting of 63 zero bits followed by a one in the least 
+	//signifigant bit is a special case meaning "immediately."
+	public static final long TT_IMMEDIATE = 1;
 
 	protected Date timestamp;
 	protected List<OSCPacket> packets;
@@ -144,7 +152,9 @@ public class OSCBundle extends AbstractOSCPacket {
 	 */
 	protected void computeTimeTagByteArray(JavaToByteArrayConverter stream) {
 		if ((null == timestamp) || (timestamp.equals(TIMESTAMP_IMMEDIATE))) {
-			stream.write(NTPTime.javaToNtpTimeStamp(0));
+
+			///stream.write(NTPTime.javaToNtpTimeStamp(0));
+			stream.write(TT_IMMEDIATE);
 		}
 		else {
 			stream.write(NTPTime.javaToNtpTimeStamp(timestamp.getTime()));
