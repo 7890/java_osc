@@ -31,6 +31,18 @@ public class OSCPackBundle extends OSCBundle {
 		super(packets, timestamp);
 	}
 
+	@Override
+        protected byte[] computeByteArray(JavaToByteArrayConverter stream) {
+                stream.write("#b");//undle"); ///only difference to superclass method
+                computeTimeTagByteArray(stream);
+                byte[] packetBytes;
+                for (final OSCPacket pkg : packets) {
+                        packetBytes = pkg.getByteArray();
+                        stream.write(packetBytes);
+                }
+                return stream.toByteArray();
+        }
+
 	//implement abstract method from abstract superclass
 	public JavaToByteArrayConverter getConverter()
 	{

@@ -33,6 +33,8 @@ import java.nio.ByteOrder;
 public abstract class AbstractByteArrayToJavaConverter implements ByteArrayToJavaConverter {
 
 	protected static final String BUNDLE_START = "#bundle";
+//	protected static final String PACK_BUNDLE_START = "#b";
+
 	protected static final char BUNDLE_IDENTIFIER = BUNDLE_START.charAt(0);
 	protected static final String NO_ARGUMENT_TYPES = "";
 
