@@ -20,6 +20,14 @@ class oscsend
 		String typetags="";
 		Vector msg_args=new Vector();
 
+		boolean pack=false;
+
+		if(path.charAt(0)=='!')
+		{
+			path=path.substring(1,path.length());
+			pack=true;
+		}
+
 		if(args.length>absolute_arg_index)
 		{
 			typetags=args[absolute_arg_index].trim();
@@ -28,7 +36,14 @@ class oscsend
 			if(typetags.charAt(0)=='/')
 			{
 				//"path-only" message
-				return new OSCMessage(path);
+				if(pack)
+				{
+					return new OSCPackMessage(path);
+				}
+				else
+				{
+					return new OSCMessage(path);
+				}
 			}
 
 			absolute_arg_index++;
@@ -165,11 +180,25 @@ class oscsend
 		OSCMessage msg_out=null;
 		if(!msg_args.isEmpty())
 		{
-			msg_out=new OSCMessage(path,msg_args);
+			if(pack)
+			{
+				msg_out=new OSCPackMessage(path,msg_args);
+			}
+			else
+			{
+				msg_out=new OSCMessage(path,msg_args);
+			}
 		}
 		else
 		{
-			msg_out=new OSCMessage(path);
+			if(pack)
+			{
+				msg_out=new OSCPackMessage(path);
+			}
+			else
+			{
+				msg_out=new OSCMessage(path);
+			}
 		}
 		return msg_out;
 	}
@@ -217,11 +246,14 @@ class oscsend
 
 			System.err.println("to send a bundle, add the next message starting with the address right after the last message.\n");
 
+			System.err.println("to pack a message (using MessagePack library), add a '!' in front of the address.\n");
+
 			System.err.println("examples");
 			System.err.println("  send simple message: oscsend localhost 7890 /hi");
 			System.err.println("  send bundle: oscsend localhost 7890 /hi /hutsefluts h 42 /foo ifs 1 .2 \"bar last\"");
 			System.err.println("  send timestamp: oscsend localhost 7890 /x t now");
-			System.err.println("  send blob: oscsend localhost 7890 /y b /etc/lsb-release\n");
+			System.err.println("  send blob: oscsend localhost 7890 /y b /etc/lsb-release");
+			System.err.println("  send packed message (experimental, non-OSC): oscsend localhost 7890 '!/foo' iii 0 1 2\n");
 
 			System.err.println("oscsend supports UDP only.");
 			System.err.println("the maximum UDP payload size (serialized OSC message byte array) can not exceed "+OSCPortIn.BUFFER_SIZE+" bytes.");
