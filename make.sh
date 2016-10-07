@@ -97,7 +97,7 @@ create_java_osc_jar()
 	#include generated javadoc
 	#include license
 	jar cfm JavaOSC_"$NOW".jar "$build"/Manifest.txt com/ org/ \
-		*.class oscsend.java oscdump.java doc LICENSE resources/
+		*.class oscsend.java oscdump.java LICENSE resources/
 	ls -l JavaOSC_"$NOW".jar
 
 	echo "build_jar done."
@@ -159,7 +159,7 @@ rm -rf "$build"/*
 compile_msgpack
 compile_java_osc
 #run_tests
-#create_java_osc_jar
+create_java_osc_jar
 #create_javadoc
 
 echo ""
