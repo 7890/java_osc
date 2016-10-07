@@ -10,6 +10,7 @@
 package com.illposed.osc.utility;
 
 import com.illposed.osc.OSCImpulse;
+import com.illposed.osc.OSCTypedBlob;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -172,6 +173,15 @@ public class OSCJavaToByteArrayConverter extends AbstractJavaToByteArrayConverte
 	 */
 	public void write(char aChar) {
 		stream.write(aChar);
+	}
+
+        public void write(OSCTypedBlob typedBlob)
+	{
+		try {
+			write((Character)typedBlob.getType());
+			write((int)typedBlob.getCount());
+			write(typedBlob.write());
+		} catch(Exception e){throw new RuntimeException(e);}
 	}
 
 	/**

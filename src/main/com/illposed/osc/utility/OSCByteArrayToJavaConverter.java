@@ -11,6 +11,7 @@ package com.illposed.osc.utility;
 
 import com.illposed.osc.OSCBundle;
 import com.illposed.osc.OSCImpulse;
+import com.illposed.osc.OSCTypedBlob;
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCPacket;
 import java.math.BigInteger;
@@ -240,7 +241,12 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 		final byte[] res = new byte[blobLen];
 		System.arraycopy(rawInput.getBytes(), rawInput.getStreamPosition(), res, 0, blobLen);
 		rawInput.addToStreamPosition(blobLen);
-		moveToFourByteBoundry(rawInput);
+
+		//blob:
+		//"An int32 size count, followed by that many 8-bit bytes of arbitrary binary data, 
+		//followed by 0-3 additional zero bytes to make the total number of bits a multiple of 32."
+		//don't move after a blob if ending on boundary
+		moveToFourByteBoundryIfNotOnIt(rawInput);
 		return res;
 	}
 
@@ -303,6 +309,8 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 				return readMidi(rawInput);
 			case 't' :
 				return readTimeTag(rawInput);
+			case 'B':
+				return readTypedBlob(rawInput);
 			default:
 				// XXX Maybe we should let the user choose what to do in this
 				//   case (we encountered an unknown argument type in an
@@ -423,6 +431,21 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 		}catch(Exception e){throw new IllegalArgumentException("could not create MIDI message.",e);}
 	}
 
+	private OSCTypedBlob readTypedBlob(final Input rawInput) {
+
+		//these two make the blob typed
+		final char type = readChar(rawInput);
+		final int count = readInteger(rawInput);
+		final int blobLen = readInteger(rawInput);
+		final byte[] res = new byte[blobLen];
+
+		//blob payload data starts now (single typed array)
+		System.arraycopy(rawInput.getBytes(), rawInput.getStreamPosition(), res, 0, blobLen);
+		rawInput.addToStreamPosition(blobLen);
+		moveToFourByteBoundryIfNotOnIt(rawInput);
+		return new OSCTypedBlob(type,count,res);
+	}
+
 	/**
 	 * Reads an array from the byte stream.
 	 * @param types
@@ -461,5 +484,15 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 		final int mod = rawInput.getStreamPosition() % 4;
 		rawInput.addToStreamPosition(4 - mod);
 	}
+
+	///
+	private void moveToFourByteBoundryIfNotOnIt(final Input rawInput) {
+		final int mod = rawInput.getStreamPosition() % 4;
+		if(mod!=0)
+		{
+			rawInput.addToStreamPosition(4 - mod);
+		}
+	}
+
 }//end class OSCByteArrayToJavaConverter
 //EOF

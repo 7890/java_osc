@@ -187,6 +187,18 @@ static class GenericOSCListener implements OSCListener
 					{
 						System.out.print(" Infinitum");
 					}
+					else if(args.get(i) instanceof OSCTypedBlob)
+					{
+						OSCTypedBlob o=(OSCTypedBlob)args.get(i);
+						System.out.print(" OSCTypedBlob("+o.getType()+", "+o.getCount()+")[");
+						List<Object> al=o.parseItems();
+						for(int k=0;k<al.size();k++)
+						{
+							if(k>0){System.out.print(", ");}
+							System.out.print(""+al.get(k));
+						}
+						System.out.print("]");
+					}
 					else if(args.get(i) instanceof ShortMessage)
 					{
 						ShortMessage m=(ShortMessage)args.get(i);

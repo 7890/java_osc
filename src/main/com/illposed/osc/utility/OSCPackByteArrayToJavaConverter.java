@@ -11,6 +11,7 @@ package com.illposed.osc.utility;
 
 import com.illposed.osc.OSCBundle;
 import com.illposed.osc.OSCImpulse;
+import com.illposed.osc.OSCTypedBlob;
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCPacket;
 import com.illposed.osc.OSCPackMessage;
@@ -245,6 +246,13 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 					else if(len2==3) { return new ShortMessage( (int)(b2[0] & 0xff), (int)(b2[1] & 0xff), (int)(b2[2] & 0xff));}
 				case 't' :
 					return NTPTime.readTimeTag(up.unpackLong());
+				case 'B' :
+					char blob_type=(char)up.unpackByte();
+					int item_count=up.unpackInt();
+					int len3=up.unpackBinaryHeader();
+					final byte[] b3=new byte[len3];
+					up.readPayload(b3);
+			                return new OSCTypedBlob(blob_type,item_count,b3);
 				default:
 					// XXX Maybe we should let the user choose what to do in this
 					//   case (we encountered an unknown argument type in an

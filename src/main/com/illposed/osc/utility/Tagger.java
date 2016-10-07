@@ -10,6 +10,7 @@
 package com.illposed.osc.utility;
 
 import com.illposed.osc.OSCImpulse;
+import com.illposed.osc.OSCTypedBlob;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +41,8 @@ public class Tagger {
 			sb.append("c");
 		} else if (OSCImpulse.class.equals(typeClass)) {
 			sb.append("I");
+		} else if (OSCTypedBlob.class.equals(typeClass)) {
+			sb.append("B");
 		} else if (ShortMessage.class.equals(typeClass)) {
 			sb.append("m");
 		} else {

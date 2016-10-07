@@ -10,6 +10,8 @@
 package com.illposed.osc.utility;
 
 import com.illposed.osc.OSCImpulse;
+import com.illposed.osc.OSCTypedBlob;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -114,6 +116,8 @@ public abstract class AbstractJavaToByteArrayConverter implements JavaToByteArra
 			write((Date) anObject);
 		} else if (anObject instanceof ShortMessage) {
 			write((ShortMessage) anObject);
+		} else if (anObject instanceof OSCTypedBlob) {
+			write((OSCTypedBlob) anObject);
 		} else if (!isNoDataObject(anObject)) {
 			throw new UnsupportedOperationException("Do not know how to write an object of class: "
 					+ anObject.getClass());
@@ -186,6 +190,9 @@ public abstract class AbstractJavaToByteArrayConverter implements JavaToByteArra
 	 * @param aChar the character to be written
 	 */
 	public abstract void write(char aChar);
+
+	///
+	public abstract void write(OSCTypedBlob typedBlob);
 
 	/**
 	 * Write the OSC specification type tag for the type a certain Java type

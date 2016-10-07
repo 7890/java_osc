@@ -8,6 +8,8 @@
 
 package com.illposed.osc.utility;
 
+import com.illposed.osc.OSCTypedBlob;
+
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
@@ -30,6 +32,7 @@ public interface JavaToByteArrayConverter {
 	public void write(Character aChar);
 	public void write(char aChar);
 	public void write(Object anObject);
+        public void write(OSCTypedBlob typedBlob);
 //	public void writeType(Class typeClass);
 	public void writeTypes(Collection<Object> arguments);
 }

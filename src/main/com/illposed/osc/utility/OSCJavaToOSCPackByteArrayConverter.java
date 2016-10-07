@@ -10,6 +10,7 @@
 package com.illposed.osc.utility;
 
 import com.illposed.osc.OSCImpulse;
+import com.illposed.osc.OSCTypedBlob;
 
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -132,6 +133,15 @@ public class OSCJavaToOSCPackByteArrayConverter extends AbstractJavaToByteArrayC
 			packer.packByte((byte)aChar);
 		} catch (IOException e) {throwEx("",e);}
 	}
+
+        public void write(OSCTypedBlob typedBlob)
+        {
+		try {
+			write((char)typedBlob.getType());
+			write((int)typedBlob.getCount());
+			write(typedBlob.write());
+		} catch(Exception e){throw new RuntimeException(e);}
+        }
 
 	public void writeType(Class typeClass, StringBuffer sb) {
 
