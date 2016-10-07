@@ -29,14 +29,12 @@ public class OSCShortcutPacketDispatcher extends OSCPacketDispatcher {
 		super();
 	}
 
-	//
-	protected boolean isOSCShortcutMessage(OSCMessage m)
+	public boolean isOSCShortcutMessage(OSCMessage m)
 	{
 		return (m.getAddress().equals("/@") && m.getTypetagString().equals("ib"));
 	}
 
-	//
-	protected OSCMessage unfoldOSCShortcutMessage(OSCMessage m)
+	public OSCMessage unfoldOSCShortcutMessage(OSCMessage m)
 	{
 		if(!isOSCShortcutMessage(m))
 		{
@@ -52,8 +50,6 @@ public class OSCShortcutPacketDispatcher extends OSCPacketDispatcher {
 //			System.err.println("found shortcut "+sc.getPath()+" "+sc.getTypetags() );
 //			Debug.hexdump(m.getByteArray());
 			byte[] b=(byte[])args.get(1);
-//			Debug.hexdump(b);
-
 			OSCMessage m_ret=new OSCMessage(sc.getPath(),sc.getTypetags(),b);
 			//clone host, port properties from original message
 			m_ret.setRemoteHost(m.getRemoteHost());
