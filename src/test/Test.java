@@ -25,6 +25,15 @@ public class Test
 	public Date date=new Date();
 	public ArrayList ar=new ArrayList();
 
+	List<Object> ints=new ArrayList<Object>();
+	List<Object> longs=new ArrayList<Object>();
+	List<Object> floats=new ArrayList<Object>();
+	List<Object> doubles=new ArrayList<Object>();
+
+	byte[] b1={(byte)0x00, (byte)0x01, (byte)0x02};
+	byte[] b2={(byte)0x00};
+	byte[] b3={(byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03}; //blob ending on 4-byte boundary
+
 	//this list will hold all arguments, to be used to create messages conveniently
 	public ArrayList msg_args=new ArrayList();
 
@@ -44,6 +53,20 @@ public class Test
 		ar.add("last standard arg");
 		ar.add(new ShortMessage(0xa1,0x7a,0x78));
 
+		ints.add(42);
+		ints.add(43);
+
+		longs.add(444L);
+		longs.add(555L);
+		longs.add(666L);
+
+		floats.add(42.2f);
+		floats.add(43.3f);
+
+		doubles.add(142.2d);
+		doubles.add(143.3d);
+		doubles.add(144.4d);
+
 		msg_args.add(s);
 		msg_args.add(f);
 		msg_args.add(d);
@@ -53,6 +76,14 @@ public class Test
 		msg_args.add(null);
 		msg_args.add(c);
 		msg_args.add(date);
+		msg_args.add(b1);
+		msg_args.add(b2);
+		msg_args.add(b3);
+	        msg_args.add(new OSCTypedBlob('i',ints));
+	        msg_args.add(new OSCTypedBlob('h',longs));
+	        msg_args.add(new OSCTypedBlob('f',floats));
+	        msg_args.add(new OSCTypedBlob('d',doubles));
+
 //		msg_args.add(ar); //try to add to OSCMessage object later
 
 //===================================
