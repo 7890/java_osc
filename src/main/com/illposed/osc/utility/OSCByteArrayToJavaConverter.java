@@ -227,7 +227,7 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 	private String readString(final Input rawInput) {
 		final int strLen = lengthOfCurrentString(rawInput);
 		final String res = new String(rawInput.getBytes(), rawInput.getStreamPosition(), strLen, charset);
-		rawInput.addToStreamPosition(strLen);
+		rawInput.addToStreamPosition(strLen+1); ////skip zero termination
 		moveToFourByteBoundry(rawInput);
 		return res;
 	}
@@ -241,12 +241,10 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 		final byte[] res = new byte[blobLen];
 		System.arraycopy(rawInput.getBytes(), rawInput.getStreamPosition(), res, 0, blobLen);
 		rawInput.addToStreamPosition(blobLen);
-
 		//blob:
 		//"An int32 size count, followed by that many 8-bit bytes of arbitrary binary data, 
 		//followed by 0-3 additional zero bytes to make the total number of bits a multiple of 32."
-		//don't move after a blob if ending on boundary
-		moveToFourByteBoundryIfNotOnIt(rawInput);
+		moveToFourByteBoundry(rawInput);
 		return res;
 	}
 
@@ -442,7 +440,7 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 		//blob payload data starts now (single typed array)
 		System.arraycopy(rawInput.getBytes(), rawInput.getStreamPosition(), res, 0, blobLen);
 		rawInput.addToStreamPosition(blobLen);
-		moveToFourByteBoundryIfNotOnIt(rawInput);
+		moveToFourByteBoundry(rawInput);
 		return new OSCTypedBlob(type,count,res);
 	}
 
@@ -480,19 +478,12 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 	 * which is dividable by four.
 	 */
 	private void moveToFourByteBoundry(final Input rawInput) {
-		// If i am already at a 4 byte boundry, I need to move to the next one
 		final int mod = rawInput.getStreamPosition() % 4;
-		rawInput.addToStreamPosition(4 - mod);
-	}
+		//rawInput.addToStreamPosition(4 - mod);
 
-	///
-	private void moveToFourByteBoundryIfNotOnIt(final Input rawInput) {
-		final int mod = rawInput.getStreamPosition() % 4;
-		if(mod!=0)
-		{
-			rawInput.addToStreamPosition(4 - mod);
-		}
+		//don't move if already on 4-byte boundary
+		//for null-terminated strings: add to position, then call moveToFourByteBoundry
+		rawInput.addToStreamPosition( (4 - mod) % 4 );
 	}
-
 }//end class OSCByteArrayToJavaConverter
 //EOF
