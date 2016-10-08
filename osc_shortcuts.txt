@@ -15,6 +15,6 @@
 /.shortcut iss 1 / ""
 
 /.shortcut iss 1 /a c
-/.shortcut iss 1233 /foo/bar sfdhiTNctisbbbBBBBmi
+/.shortcut iss 1233 /foo/bar sfdhiTNctbbbBBBBismi
 
 #eof
