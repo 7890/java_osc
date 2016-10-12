@@ -413,7 +413,9 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 
 	//
 	private ShortMessage readMidi(final Input rawInput) {
-
+		//first byte of OSC type 'm' message is midi port.
+		//skip it for now
+		rawInput.getAndIncreaseStreamPositionByOne();
 		byte b1=rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
 		byte b2=rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];
 		byte b3=rawInput.getBytes()[rawInput.getAndIncreaseStreamPositionByOne()];

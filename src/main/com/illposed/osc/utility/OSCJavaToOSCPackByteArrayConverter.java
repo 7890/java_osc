@@ -106,9 +106,12 @@ public class OSCJavaToOSCPackByteArrayConverter extends AbstractJavaToByteArrayC
 	}
 
 	public void write(ShortMessage midievent) {
+		//first byte of OSC type 'm' is midi port.
+		//for now this is implicitely always 0x00 (~ default midi port)
 		//write bytes (>0, <=3)
 		try {
-			packer.packBinaryHeader(midievent.getLength());
+			packer.packBinaryHeader(midievent.getLength()+1);
+			packer.packByte((byte)0x00);
 			packer.writePayload(midievent.getMessage());
 		} catch (IOException e) {throwEx("",e);}
 
@@ -134,14 +137,14 @@ public class OSCJavaToOSCPackByteArrayConverter extends AbstractJavaToByteArrayC
 		} catch (IOException e) {throwEx("",e);}
 	}
 
-        public void write(OSCTypedBlob typedBlob)
-        {
+	public void write(OSCTypedBlob typedBlob)
+	{
 		try {
 			write((char)typedBlob.getType());
 			write((int)typedBlob.getCount());
 			write(typedBlob.write());
 		} catch(Exception e){throw new RuntimeException(e);}
-        }
+	}
 
 	public void writeType(Class typeClass, StringBuffer sb) {
 

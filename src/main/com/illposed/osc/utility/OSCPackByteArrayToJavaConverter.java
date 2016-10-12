@@ -241,9 +241,11 @@ public class OSCPackByteArrayToJavaConverter extends AbstractByteArrayToJavaConv
 					int len2=up.unpackBinaryHeader();
 					final byte[] b2=new byte[len2];
 					up.readPayload(b2);
-					if(len2==1) {      return new ShortMessage( (int)(b2[0] & 0xff), 0,                   0 ); }
-					else if(len2==2) { return new ShortMessage( (int)(b2[0] & 0xff), (int)(b2[1] & 0xff), 0 ); }
-					else if(len2==3) { return new ShortMessage( (int)(b2[0] & 0xff), (int)(b2[1] & 0xff), (int)(b2[2] & 0xff));}
+					//first byte of OSC type 'm' message is midi port.
+					//skip it for now
+					if(len2==2) {      return new ShortMessage( (int)(b2[1] & 0xff), 0,                   0 ); }
+					else if(len2==3) { return new ShortMessage( (int)(b2[1] & 0xff), (int)(b2[2] & 0xff), 0 ); }
+					else if(len2==4) { return new ShortMessage( (int)(b2[1] & 0xff), (int)(b2[2] & 0xff), (int)(b2[3] & 0xff));}
 				case 't' :
 					return NTPTime.readTimeTag(up.unpackLong());
 				case 'B' :

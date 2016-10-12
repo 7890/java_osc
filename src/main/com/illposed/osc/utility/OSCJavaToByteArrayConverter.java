@@ -124,6 +124,9 @@ public class OSCJavaToByteArrayConverter extends AbstractJavaToByteArrayConverte
 
 	//
 	public void write(ShortMessage midievent) {
+		//first byte of OSC type 'm' is midi port.
+		//for now this is implicitely always 0x00 (~ default midi port)
+		stream.write(0x00);
 		//write bytes (>0, <=3)
 		byte[] b=midievent.getMessage();
 		for(int i=0;i<midievent.getLength();i++)
