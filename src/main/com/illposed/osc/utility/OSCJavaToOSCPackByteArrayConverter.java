@@ -111,7 +111,8 @@ public class OSCJavaToOSCPackByteArrayConverter extends AbstractJavaToByteArrayC
 		//write bytes (>0, <=3)
 		try {
 			packer.packBinaryHeader(midievent.getLength()+1);
-			packer.packByte((byte)0x00);
+			byte[] zero={0x00};
+			packer.writePayload(zero);
 			packer.writePayload(midievent.getMessage());
 		} catch (IOException e) {throwEx("",e);}
 
