@@ -46,7 +46,7 @@ class oscdump
 
 		//parse arg: port
 		//minimum #args: 1
-		if(args.length<1)
+		if(args.length<1 || args[0].equals("--help"))
 		{
 			System.err.println("syntax: <port> (<filter string> ...)");
 			System.err.println("default filter string: '//*'");
@@ -207,7 +207,7 @@ static class GenericOSCListener implements OSCListener
 
 						if(midi_display_style==0)
 						{
-							System.out.printf(" [MIDI 0x%02x",m.getStatus());
+							System.out.printf(" [MIDI 0x00 0x%02x",m.getStatus());
 							if(m.getLength()>1)
 							{
 								System.out.printf(" 0x%02x",m.getData1());
@@ -220,7 +220,7 @@ static class GenericOSCListener implements OSCListener
 						}
 						if(midi_display_style==1)
 						{
-							System.out.print(" [MIDI "+m.getStatus());
+							System.out.print(" [MIDI 0 "+m.getStatus());
 							if(m.getLength()>1)
 							{
 								System.out.print(" "+m.getData1());
