@@ -8,15 +8,20 @@ import java.io.InputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.Vector;
 
 //========================================================================
 //========================================================================
-class LProps
+public class LProps
 {
 	private final static boolean PROCESS_INSTRUCTIONS=true;
+
+	private final static String PROPERTIES_READ_ENCODING="UTF-8";
+	private final static String PROPERTIES_STORE_ENCODING="UTF-8";
 
 	public LProps(){}
 
@@ -45,6 +50,20 @@ class LProps
 				{
 					sb.append(field.getName()+"="+field.get(configurable_object)+nl);
 				}
+
+				else if(ctype==java.util.Vector.class)
+				{
+					sb.append(field.getName()+"=");
+					Vector v=(Vector)field.get(configurable_object);
+					for(int i=0;i<v.size();i++)
+					{
+						sb.append(v.get(i));
+						if(i<v.size()-1)
+						{
+							sb.append(",");
+						}
+					}
+				}
 			}
 			return sb.toString();
 		}
@@ -63,7 +82,13 @@ class LProps
 		try
 		{
 			props.load(new StringReader(all));
-			getOrderedProperties(props).store(new FileOutputStream(new File(configfile_uri)), null);
+			getOrderedProperties(props).store(
+				new OutputStreamWriter(
+					new FileOutputStream(
+						new File(configfile_uri)
+					)
+					,PROPERTIES_STORE_ENCODING)
+				,null);
 			return true;
 		}
 		catch(Exception e){e.printStackTrace();}
@@ -158,6 +183,20 @@ class LProps
 						try{fields[i].setBoolean(configurable_object, Boolean.parseBoolean(props.getProperty(fname)));}
 						catch(Exception e){System.err.println(""+e);}
 					}
+					else if(ctype==Vector.class)
+					{
+//						System.err.println("found vector");
+						try
+						{
+							String tokens[]=props.getProperty(fname).split(",");
+							Vector v = (Vector)fields[i].get(configurable_object);
+							for(int k=0;k<tokens.length;k++)
+							{
+								v.add(tokens[k].trim());
+							}
+						}
+						catch(Exception e){System.err.println(""+e);}
+					}
 					///else if byte,short,long,char,double
 				}//end if found property
 			}//end for all fields
@@ -194,7 +233,7 @@ class LProps
 			{
 				return null;
 			}
-			props.load(is);
+			props.load(new InputStreamReader(is,PROPERTIES_READ_ENCODING));
 			if(props==null)
 			{
 				return null;
@@ -245,9 +284,14 @@ class LProps
 		try
 		{
 			props.setProperty(key, ""+val);
-//			getOrderedProperties(props).store(System.out, null);
 			///OVERWRITE ORIGINAL FILE. LOOSING ALL COMMENTS. KEYS IN ALPHABETIC ORDER.
-			getOrderedProperties(props).store(new FileOutputStream(new File(configfile_uri)), null);
+			getOrderedProperties(props).store(
+				new OutputStreamWriter(
+					new FileOutputStream(
+						new File(configfile_uri)
+					)
+					,PROPERTIES_STORE_ENCODING)
+				,null);
 //			System.out.println(key+"="+get(configfile_uri,key));
 //			print(configfile_uri);
 			return true;
