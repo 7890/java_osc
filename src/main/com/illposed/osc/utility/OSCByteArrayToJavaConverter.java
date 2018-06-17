@@ -423,8 +423,6 @@ public class OSCByteArrayToJavaConverter extends AbstractByteArrayToJavaConverte
 		int data1=(int) (b2 & 0xff);
 		int data2=(int) (b3 & 0xff);
 
-		//skip last byte
-		rawInput.addToStreamPosition(1);
 //		System.err.println("status "+status+" data1 "+data1+" data2 "+data2);
 		try {
 			return new ShortMessage(status,data1,data2);
