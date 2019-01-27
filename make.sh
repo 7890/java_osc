@@ -158,9 +158,10 @@ rm -rf "$build"/*
 
 compile_msgpack
 compile_java_osc
-#run_tests
+run_tests
+create_javadoc
 create_java_osc_jar
-#create_javadoc
+
 
 echo ""
 echo "done."
