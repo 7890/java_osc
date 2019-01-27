@@ -19,7 +19,7 @@ before_script:
 script:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./make.sh; fi
 # run very basic tests
-#    - .ci/test_run.sh
+    - .ci/test_run.sh
 
 branches:
   only:
