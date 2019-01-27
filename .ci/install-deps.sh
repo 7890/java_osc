@@ -6,7 +6,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 # autotools, automake, make are present in the trusty image
 # openjdk-8 available
   sudo apt-get install -y \
-    openjdk-7-jdk
+    openjdk-7-jdk \
     junit4
 fi
 
